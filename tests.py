@@ -5,17 +5,23 @@ import microblog
 class TestWritePost(unittest.TestCase):
     """Test the write_post function of the microblog."""
     def setUp(self):
-        posts = microblog.read_posts()
-        self.title = "A Blog Title %s" % (int(posts[0].id) + 1)
+        microblog.db.create_all()
+        self.title = "A Blog Title"
         self.body = "A Blog Body"
-        self.malformed_body = "The body section of a malformed post."
+
+    def tearDown(self):
+        microblog.db.session.remove()
+        microblog.db.drop_all()
 
     def test_write_post(self):
         """Write a post and then verify that it appeared at the top of
         the microblog.
         """
+        posts = microblog.read_posts()
+        self.assertEqual(len(posts), 0)
         microblog.write_post(self.title, self.body)
         posts = microblog.read_posts()
+        self.assertEqual(len(posts), 1)
         self.assertEqual(posts[0].title, self.title)
         self.assertEqual(posts[0].body, self.body)
 
@@ -35,9 +41,13 @@ class TestWritePost(unittest.TestCase):
 class TestReadPosts(unittest.TestCase):
     """Test the read_posts function of the microblog."""
     def setUp(self):
-        posts = microblog.read_posts()
-        self.title = "A Blog Title %s" % (int(posts[0].id) + 1)
+        microblog.db.create_all()
+        self.title = "A Blog Title"
         self.body = "A Blog Body"
+
+    def tearDown(self):
+        microblog.db.session.remove()
+        microblog.db.drop_all()
 
     def test_read_posts(self):
         """Read the number of posts we have. Then write a new post, and
@@ -51,6 +61,36 @@ class TestReadPosts(unittest.TestCase):
         self.assertEqual(len(posts), length + 1)
         self.assertEqual(posts[0].title, self.title)
         self.assertEqual(posts[0].body, self.body)
+
+
+class TestReadPost(unittest.TestCase):
+    """Test the read_post function of the microblog."""
+    def setUp(self):
+        microblog.db.create_all()
+        self.title1 = "A Blog Title"
+        self.title2 = "Another Blog Title"
+        self.title3 = "A Third Blog Title"
+        self.body1 = "A Blog Body"
+        self.body2 = "Another Blog Body"
+        self.body3 = "A Third Blog Body"
+
+        microblog.write_post(self.title1, self.body1)
+        microblog.write_post(self.title2, self.body2)
+        microblog.write_post(self.title3, self.body3)
+
+    def tearDown(self):
+        microblog.db.session.remove()
+        microblog.db.drop_all()
+
+    def test_read_post(self):
+        """Add several posts and attempt to fetch one by its id."""
+        post = microblog.read_post(2)
+        self.assertEqual(post.title, self.title2)
+        self.assertEqual(post.body, self.body2)
+
+    def test_read_nonexistant_post(self):
+        """Add several posts and attempt to fetch one by its id."""
+        self.assertRaises(IndexError, microblog.read_post, 4)
 
 
 if __name__ == '__main__':
