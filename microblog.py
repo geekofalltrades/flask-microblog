@@ -2,6 +2,7 @@ from flask import Flask
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.script import Manager
 from flask.ext.migrate import Migrate, MigrateCommand
+from sqlalchemy import desc
 from datetime import datetime
 
 app = Flask(__name__)
@@ -40,8 +41,7 @@ def write_post(title, body):
 
 def read_posts():
     """Retrieve all blog posts in reverse chronological order."""
-    posts = Post.query.all()
-    posts.reverse()
+    posts = Post.query.order_by(desc(Post.timestamp)).all()
     return posts
 
 
