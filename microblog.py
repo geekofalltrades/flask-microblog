@@ -1,5 +1,7 @@
 from flask import Flask
 from flask.ext.sqlalchemy import SQLAlchemy
+from flask.ext.script import Manager
+from flask.ext.migrate import Migrate, MigrateCommand
 from datetime import datetime
 
 app = Flask(__name__)
@@ -7,6 +9,9 @@ app.config['SQLALCHEMY_DATABASE_URI'] = \
     'postgresql+psycopg2:///microblog'
 app.config['SQLALCHEMY_COMMIT_ON_TEARDOWN'] = True
 db = SQLAlchemy(app)
+migrate = Migrate(app, db)
+manager = Manager(app)
+manager.add_command('db', MigrateCommand)
 
 
 class Post(db.Model):
@@ -27,6 +32,9 @@ def write_post(title, body):
     new_post = Post(title, body)
 
     db.session.add(new_post)
+
+    #Because the COMMIT_ON_TEARDOWN option doesn't appear to be working
+    #(or possibly just doesn't work in the way I anticipated).
     db.session.commit()
 
 
@@ -35,3 +43,7 @@ def read_posts():
     posts = Post.query.all()
     posts.reverse()
     return posts
+
+
+if __name__ == '__main__':
+    manager.run()
