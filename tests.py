@@ -89,7 +89,8 @@ class TestReadPost(unittest.TestCase):
         self.assertEqual(post.body, self.body2)
 
     def test_read_nonexistant_post(self):
-        """Add several posts and attempt to fetch one by its id."""
+        """Add several posts, then attempt to fetch a post by an id that
+        shouldn't exist."""
         self.assertRaises(IndexError, microblog.read_post, 4)
 
 
