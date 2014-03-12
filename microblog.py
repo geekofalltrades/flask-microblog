@@ -25,7 +25,7 @@ class Post(db.Model):
     def __init__(self, title, body):
         self.title = title
         self.body = body
-        self.timestamp = datetime.now()
+        self.timestamp = datetime.utcnow()
 
 
 def write_post(title, body):
