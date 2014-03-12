@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, render_template
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.script import Manager
 from flask.ext.migrate import Migrate, MigrateCommand
@@ -26,6 +26,28 @@ class Post(db.Model):
         self.title = title
         self.body = body
         self.timestamp = datetime.utcnow()
+
+
+@app.route("/")
+def list_view():
+    """The home page: a list of all posts in reverse chronological order.
+    """
+    raw_posts = read_posts()
+    posts = []
+    for post in raw_posts:
+        posts.append({
+            'title': post.title,
+            'body': post.body,
+            'date': post.timestamp,
+        })
+
+    return render_template(posts=posts)
+
+
+@app.route("/posts/<id>")
+def permalink_view(id):
+    """Fetch and render a single blog post."""
+    pass
 
 
 def write_post(title, body):
