@@ -39,9 +39,10 @@ def list_view():
             'title': post.title,
             'body': post.body,
             'date': post.timestamp,
+            'id': post.id,
         })
 
-    return render_template(posts=posts)
+    return render_template('list.html', posts=posts)
 
 
 @app.route("/posts/<id>")
