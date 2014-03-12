@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request, redirect, url_for
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.script import Manager
 from flask.ext.migrate import Migrate, MigrateCommand
@@ -48,7 +48,31 @@ def list_view():
 @app.route("/posts/<id>")
 def permalink_view(id):
     """Fetch and render a single blog post."""
-    pass
+    raw_post = read_post(id)
+    post = {
+        'title': raw_post.title,
+        'body': raw_post.body,
+        'date': raw_post.timestamp,
+        'id': raw_post.id,
+    }
+
+    return render_template('permalink.html', post=post)
+
+
+@app.route("/add", methods=['GET', 'POST'])
+def add_view():
+    """Add a new post. If the request method is GET, returns a form that
+    allows the user to add a new post. If the request method is POST,
+    validates the incoming post, then inserts it and redirects the user
+    to the homepage (list view)."""
+    if request.method == 'POST':
+        write_post(
+            request.form['title'],
+            request.form['body'],
+        )
+        return redirect(url_for('list_view'))
+    else:
+        return render_template('add.html')
 
 
 def write_post(title, body):

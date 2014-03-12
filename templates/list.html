@@ -1,9 +1,10 @@
 {% extends "base.html" %}
 {% block content %}
+<a href="/add">Create Post</a>
 <div id="posts">
     {% for post in posts %}
     <div>
-        <h3><a href="/posts/{{ post.id }}">{{ post.title }}</a></h3>
+        <h2><a href="/posts/{{ post.id }}">{{ post.title }}</a></h2>
         <i>{{ post.date }}</i>
         <p>{{ post.body }}</p>
     </div>
