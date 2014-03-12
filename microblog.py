@@ -21,10 +21,25 @@ class Post(db.Model):
     title = db.Column(db.String(255), unique=True)
     body = db.Column(db.Text)
     timestamp = db.Column(db.DateTime)
+    auth_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
     def __init__(self, title, body):
         self.title = title
         self.body = body
+        self.timestamp = datetime.utcnow()
+
+
+class User(db.Model):
+    """A user."""
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(255), unique=True)
+    password = db.Column(db.String(255))
+    timestamp = db.Column(db.DateTime)
+    posts = db.relationship('Post', backref="author")
+
+    def __init__(self, username, password):
+        self.username = username
+        self.password = password
         self.timestamp = datetime.utcnow()
 
 
