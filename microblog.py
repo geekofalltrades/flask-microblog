@@ -4,11 +4,12 @@ from flask.ext.script import Manager
 from flask.ext.migrate import Migrate, MigrateCommand
 from sqlalchemy import desc
 from datetime import datetime
+from hashlib import sha1
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = \
     'postgresql+psycopg2:///microblog'
-app.config['SQLALCHEMY_COMMIT_ON_TEARDOWN'] = True
+#app.config['SQLALCHEMY_COMMIT_ON_TEARDOWN'] = True
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 manager = Manager(app)
@@ -17,11 +18,12 @@ manager.add_command('db', MigrateCommand)
 
 class Post(db.Model):
     """A blog post."""
+    __tablename__ = 'posts'
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(255), unique=True)
     body = db.Column(db.Text)
     timestamp = db.Column(db.DateTime)
-    auth_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    auth_id = db.Column(db.Integer, db.ForeignKey('users.id'))
 
     def __init__(self, title, body):
         self.title = title
@@ -31,6 +33,7 @@ class Post(db.Model):
 
 class User(db.Model):
     """A user."""
+    __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(255), unique=True)
     password = db.Column(db.String(255))
@@ -95,9 +98,6 @@ def write_post(title, body):
     new_post = Post(title, body)
 
     db.session.add(new_post)
-
-    #Because the COMMIT_ON_TEARDOWN option doesn't appear to be working
-    #(or possibly just doesn't work in the way I anticipated).
     db.session.commit()
 
 
@@ -113,6 +113,17 @@ def read_post(id):
     if post is None:
         raise IndexError("There exists no post with the specified id.")
     return post
+
+
+def add_user(username, password):
+    """Add a new user to the database's 'user' table."""
+    p = sha1()
+    p.update(password)
+
+    new_user = User(username, p.hexdigest())
+
+    db.session.add(new_user)
+    db.session.commit()
 
 
 if __name__ == '__main__':
