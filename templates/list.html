@@ -3,13 +3,13 @@
 {% if session.logged_in %}
 <p>Logged in as {{ session.user }} - <a href="/logout">Log Out</a></p>
 {% else %}
-<p>Not logged in - <a href="/login">Log In</a> or <a href="/register">Register</a></p>
+<p>Not logged in - <a href={{ url_for('login_view') }}>Log In</a> or <a href={{ url_for('register_view') }}>Register</a></p>
 {% endif %}
-<a href="/add">Create Post</a>
+<a href={{ url_for('add_view') }}>Create Post</a>
 <div id="posts">
     {% for post in posts %}
     <div>
-        <h2><a href="/posts/{{ post.id }}">{{ post.title }}</a></h2>
+        <h2><a href={{ url_for('permalink_view', id=post.id) }}>{{ post.title }}</a></h2>
         <i>{{ post.date }}</i>
         <p>{{ post.body }}</p>
     </div>

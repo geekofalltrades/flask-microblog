@@ -105,7 +105,6 @@ def add_view():
 def login_view():
     """Allows a user to log in."""
     if request.method == 'POST':
-        password = read_user(request.form['username'])
         try:
             password = read_user(request.form['username'])
         except KeyError as e:
@@ -130,6 +129,12 @@ def logout_view():
     session.pop('user', None)
 
     return redirect(url_for('list_view'))
+
+
+@app.route("/register")
+def register_view():
+    """Allows a user to register for membership."""
+    return "<h1>Nope.</h1>"
 
 
 def write_post(title, body):
