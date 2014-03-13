@@ -4,7 +4,7 @@ from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.script import Manager
 from flask.ext.migrate import Migrate, MigrateCommand
 from flask.ext.seasurf import SeaSurf
-from sqlalchemy.ext import IntegrityError
+#from sqlalchemy.ext import IntegrityError
 from passlib.hash import bcrypt
 from sqlalchemy import desc
 from datetime import datetime
@@ -138,8 +138,6 @@ def write_post(title=None, body=None, auth_id=None):
         body = None
     if not auth_id:
         auth_id = None
-
-    print title, body, auth_id
 
     new_post = Post(title, body, auth_id)
 

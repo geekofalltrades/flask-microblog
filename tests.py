@@ -1,17 +1,20 @@
 import unittest
 import microblog
+from sqlalchemy.ext import IntegrityError
 
 
 class TestWritePost(unittest.TestCase):
     """Test the write_post function of the microblog."""
     def setUp(self):
         microblog.db.create_all()
+        microblog._login('admin', 'password')
         self.title = "A Blog Title"
         self.body = "A Blog Body"
 
     def tearDown(self):
         microblog.db.session.remove()
         microblog.db.drop_all()
+        microblog._logout()
 
     def test_write_post(self):
         """Write a post and then verify that it appeared at the top of
@@ -25,17 +28,17 @@ class TestWritePost(unittest.TestCase):
         self.assertEqual(posts[0].title, self.title)
         self.assertEqual(posts[0].body, self.body)
 
-    # def test_write_malformed_post(self):
-    #     """Attempt to submit a post that does not have a title and verify
-    #     that it did NOT appear at the top of the microblog.
-    #     """
-    #     try:
-    #         microblog.write_post(None, self.malformed_body)
-    #     except:
-    #         #Discard any exceptions that were raised by this operation
-    #         pass
-    #     posts = microblog.read_posts()
-    #     self.assertNotEqual(posts[0].body, self.malformed_body)
+    def test_write_malformed_post(self):
+        """Attempt to submit a post that does not have a title and verify
+        that it did NOT appear at the top of the microblog.
+        """
+        try:
+            microblog.write_post(None, self.malformed_body)
+        except:
+            #Discard any exceptions that were raised by this operation
+            pass
+        posts = microblog.read_posts()
+        self.assertNotEqual(posts[0].body, self.malformed_body)
 
 
 class TestReadPosts(unittest.TestCase):
