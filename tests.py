@@ -94,5 +94,48 @@ class TestReadPost(unittest.TestCase):
         self.assertRaises(IndexError, microblog.read_post, 4)
 
 
+class TestAddUser(unittest.TestCase):
+    """Test the add_user function of the microblog."""
+    def setUp(self):
+        microblog.db.create_all()
+        self.users = {
+            'user1': 'pass1',
+            'user2': 'pass2',
+            'user3': 'pass3',
+        }
+
+    def tearDown(self):
+        microblog.db.session.remove()
+        microblog.db.drop_all()
+
+    def test_add_user(self):
+        """Add a user to the database and verify that that user has been
+        inserted into the database.
+        """
+        pass
+
+
+class TestReadUser(unittest.TestCase):
+    """Test the read_user function of the microblog."""
+    def setUp(self):
+        microblog.db.create_all()
+
+    def tearDown(self):
+        microblog.db.session.remove()
+        microblog.db.drop_all()
+
+    def test_fetch_existent_user(self):
+        """Read a user from the database who is in the database."""
+        pass
+
+    def test_fetch_nonexistant_user(self):
+        """Attempt to read a user from the database who is not in the
+        database.
+        """
+        pass
+
+
+#Start testing views
+
 if __name__ == '__main__':
     unittest.main()
