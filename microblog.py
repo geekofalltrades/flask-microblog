@@ -106,20 +106,30 @@ def login_view():
     """Allows a user to log in."""
     if request.method == 'POST':
         password = read_user(request.form['username'])
-        # try:
-        #     password = read_user(request.form['username'])
-        # except:
-        #     pass
-        # else:
-        if bcrypt.verify(request.form['password'], password):
-            session['logged_in'] = True
-            session['user'] = request.form['username']
+        try:
+            password = read_user(request.form['username'])
+        except KeyError as e:
+            flash(e.message, category="error")
+            return redirect(url_for('login_view'))
         else:
-            pass
-            #return some sort of error
-        return redirect(url_for('list_view'))
+            if bcrypt.verify(request.form['password'], password):
+                session['logged_in'] = True
+                session['user'] = request.form['username']
+            else:
+                flash("Incorrect password.", category='error')
+                return redirect(url_for('login_view'))
+            return redirect(url_for('list_view'))
     else:
         return render_template('login.html')
+
+
+@app.route("/logout")
+def logout_view():
+    """Logs a user out."""
+    session.pop('logged_in', None)
+    session.pop('user', None)
+
+    return redirect(url_for('list_view'))
 
 
 def write_post(title, body):
@@ -155,6 +165,8 @@ def add_user(username, password):
 def read_user(username):
     """Fetch the password associated with a username from the database."""
     user = User.query.filter_by(username=username).first()
+    if user is None:
+        raise KeyError("This user does not exist.")
     return user.password
 
 
