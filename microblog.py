@@ -2,11 +2,13 @@ from flask import Flask, render_template, request, redirect, url_for
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.script import Manager
 from flask.ext.migrate import Migrate, MigrateCommand
+from flask.ext.seasurf import SeaSurf
 from sqlalchemy import desc
 from datetime import datetime
 from hashlib import sha1
 
 app = Flask(__name__)
+csrf = SeaSurf(app)
 app.config['SQLALCHEMY_DATABASE_URI'] = \
     'postgresql+psycopg2:///microblog'
 #app.config['SQLALCHEMY_COMMIT_ON_TEARDOWN'] = True
