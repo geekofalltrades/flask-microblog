@@ -1,4 +1,9 @@
 {% extends "base.html" %}
+{% if user is defined %}
+<p>Logged in as {{ user }} - <a href="/logout">Log Out</a></p>
+{% else %}
+<p>Not logged in - <a href="/login">Log In</a> or <a href="/register">Register</a></p>
+{% endif %}
 {% block content %}
 <div id="post">
     <h3>{{ post.title }}</h3>

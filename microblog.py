@@ -95,6 +95,28 @@ def add_view():
         return render_template('add.html')
 
 
+@app.route("/login", methods=['GET', 'POST'])
+def login_view():
+    """Allows a user to log in."""
+    if request.method == 'POST':
+        try:
+            password = read_user(request.form['username'])
+        except:
+            pass
+        else:
+            p = sha1()
+            p.update(request.form['password'])
+            if password == p.hexdigest():
+                pass
+                #log in
+            else:
+                pass
+                #return some sort of error
+        return redirect(url_for('list_view'))
+    else:
+        return render_template('login.html')
+
+
 def write_post(title, body):
     """Create a new blog post."""
     new_post = Post(title, body)
@@ -126,6 +148,12 @@ def add_user(username, password):
 
     db.session.add(new_user)
     db.session.commit()
+
+
+def read_user(username):
+    """Fetch the password associated with a username from the database."""
+    password = User.query.filter_by(username=username).first()
+    return password
 
 
 if __name__ == '__main__':
