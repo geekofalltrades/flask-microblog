@@ -155,7 +155,7 @@ def read_post(id):
     """Retrieve a single post by its id."""
     post = Post.query.filter_by(id=str(id)).first()
     if post is None:
-        raise IndexError("There exists no post with the specified id.")
+        raise NotFoundError("There exists no post with the specified id.")
     return post
 
 
