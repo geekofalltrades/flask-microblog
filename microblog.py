@@ -54,30 +54,14 @@ class User(db.Model):
 def list_view():
     """The home page: a list of all posts in reverse chronological order.
     """
-    raw_posts = read_posts()
-    posts = []
-    for post in raw_posts:
-        posts.append({
-            'title': post.title,
-            'body': post.body,
-            'date': post.timestamp,
-            'id': post.id,
-        })
-
+    posts = read_posts()
     return render_template('list.html', posts=posts)
 
 
 @app.route("/posts/<id>")
 def permalink_view(id):
     """Fetch and render a single blog post."""
-    raw_post = read_post(id)
-    post = {
-        'title': raw_post.title,
-        'body': raw_post.body,
-        'date': raw_post.timestamp,
-        'id': raw_post.id,
-    }
-
+    post = read_post(id)
     return render_template('permalink.html', post=post)
 
 
