@@ -29,9 +29,10 @@ class Post(db.Model):
     timestamp = db.Column(db.DateTime)
     auth_id = db.Column(db.Integer, db.ForeignKey('users.id'))
 
-    def __init__(self, title, body):
+    def __init__(self, title=None, body=None, auth_id=None):
         self.title = title
         self.body = body
+        self.auth_id = auth_id
         self.timestamp = datetime.utcnow()
 
 
@@ -72,10 +73,11 @@ def add_view():
     validates the incoming post, then inserts it and redirects the user
     to the homepage (list view)."""
     if request.method == 'POST':
-        if session['logged_in']:
+        if session.get('logged_in', False):
             write_post(
                 request.form['title'],
                 request.form['body'],
+                session.get('user_id', None),
             )
         else:
             flash("You must be logged in to perform that action.",
@@ -90,7 +92,7 @@ def login_view():
     """Allows a user to log in."""
     if request.method == 'POST':
         try:
-            password = read_user(request.form['username'])
+            password, user_id = read_user(request.form['username'])
         except KeyError as e:
             flash(e.message, category="error")
             return redirect(url_for('login_view'))
@@ -98,6 +100,7 @@ def login_view():
             if bcrypt.verify(request.form['password'], password):
                 session['logged_in'] = True
                 session['user'] = request.form['username']
+                session['user_id'] = user_id
             else:
                 flash("Incorrect password.", category='error')
                 return redirect(url_for('login_view'))
@@ -110,7 +113,8 @@ def login_view():
 def logout_view():
     """Logs a user out."""
     session.pop('logged_in', None)
-    session.pop('user', None)
+    session.pop('username', None)
+    session.pop('user_id', None)
 
     return redirect(url_for('list_view'))
 
@@ -121,9 +125,9 @@ def register_view():
     return "<h1>Nope.</h1>"
 
 
-def write_post(title, body):
+def write_post(title=None, body=None, auth_id=None):
     """Create a new blog post."""
-    new_post = Post(title, body)
+    new_post = Post(title, body, auth_id)
 
     db.session.add(new_post)
     db.session.commit()
@@ -156,7 +160,7 @@ def read_user(username):
     user = User.query.filter_by(username=username).first()
     if user is None:
         raise KeyError("This user does not exist.")
-    return user.password
+    return user.password, user.id
 
 
 if __name__ == '__main__':
