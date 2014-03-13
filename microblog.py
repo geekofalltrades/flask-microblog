@@ -1,18 +1,19 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, \
+    redirect, url_for, flash, session
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.script import Manager
 from flask.ext.migrate import Migrate, MigrateCommand
 from flask.ext.seasurf import SeaSurf
-from flaskext.bcrpyt import Bcrypt
+from passlib.hash import bcrypt
 from sqlalchemy import desc
 from datetime import datetime
 
 app = Flask(__name__)
 csrf = SeaSurf(app)
-bcrypt = Bcrypt(app)
 app.config['SQLALCHEMY_DATABASE_URI'] = \
     'postgresql+psycopg2:///microblog'
 #app.config['SQLALCHEMY_COMMIT_ON_TEARDOWN'] = True
+app.secret_key = 'notaparticularlysecurekey'
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 manager = Manager(app)
@@ -92,6 +93,9 @@ def add_view():
                 request.form['title'],
                 request.form['body'],
             )
+        else:
+            flash("You must be logged in to perform that action.",
+                category="error")
         return redirect(url_for('list_view'))
     else:
         return render_template('add.html')
@@ -101,18 +105,18 @@ def add_view():
 def login_view():
     """Allows a user to log in."""
     if request.method == 'POST':
-        try:
-            password = read_user(request.form['username'])
-        except:
-            pass
+        password = read_user(request.form['username'])
+        # try:
+        #     password = read_user(request.form['username'])
+        # except:
+        #     pass
+        # else:
+        if bcrypt.verify(request.form['password'], password):
+            session['logged_in'] = True
+            session['user'] = request.form['username']
         else:
-            if bcrypt.check_password_hash(
-                    password, request.form['password']):
-                pass
-                #log in
-            else:
-                pass
-                #return some sort of error
+            pass
+            #return some sort of error
         return redirect(url_for('list_view'))
     else:
         return render_template('login.html')
@@ -142,7 +146,7 @@ def read_post(id):
 
 def add_user(username, password):
     """Add a new user to the database's 'user' table."""
-    new_user = User(username, bcrypt.generate_password_hash(password))
+    new_user = User(username, bcrypt.encrypt(password))
 
     db.session.add(new_user)
     db.session.commit()
@@ -150,8 +154,8 @@ def add_user(username, password):
 
 def read_user(username):
     """Fetch the password associated with a username from the database."""
-    password = User.query.filter_by(username=username).first()
-    return password
+    user = User.query.filter_by(username=username).first()
+    return user.password
 
 
 if __name__ == '__main__':
