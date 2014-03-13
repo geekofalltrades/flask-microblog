@@ -10,7 +10,7 @@
     {% for post in posts %}
     <div>
         <h2><a href={{ url_for('permalink_view', id=post.id) }}>{{ post.title }}</a></h2>
-        <i>by {{ post.author }} on {{ post.timestamp }}</i>
+        <i>by {{ post.author.username }} on {{ post.timestamp }}</i>
         <p>{{ post.body }}</p>
     </div>
     {% endfor %}

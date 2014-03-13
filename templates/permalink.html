@@ -7,7 +7,7 @@
 {% endif %}
 <div id="post">
     <h3>{{ post.title }}</h3>
-    <i>by {{ post.author }} on {{ post.timestamp }}</i>
+    <i>by {{ post.author.username }} on {{ post.timestamp }}</i>
     <p>{{ post.body }}</p>
 </div>
 <a href='/'>Home</a>

@@ -80,8 +80,10 @@ def add_view():
                 session.get('user_id', None),
             )
         else:
-            flash("You must be logged in to perform that action.",
-                category="error")
+            flash(
+                "You must be logged in to perform that action.",
+                category="error"
+            )
         return redirect(url_for('list_view'))
     else:
         return render_template('add.html')
