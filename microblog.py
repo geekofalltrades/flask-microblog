@@ -3,7 +3,7 @@ from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.script import Manager
 from flask.ext.migrate import Migrate, MigrateCommand
 from flask.ext.seasurf import SeaSurf
-from flask.ext.bcrpyt import Bcrypt
+from flaskext.bcrpyt import Bcrypt
 from sqlalchemy import desc
 from datetime import datetime
 
@@ -87,10 +87,11 @@ def add_view():
     validates the incoming post, then inserts it and redirects the user
     to the homepage (list view)."""
     if request.method == 'POST':
-        write_post(
-            request.form['title'],
-            request.form['body'],
-        )
+        if session['logged_in']:
+            write_post(
+                request.form['title'],
+                request.form['body'],
+            )
         return redirect(url_for('list_view'))
     else:
         return render_template('add.html')

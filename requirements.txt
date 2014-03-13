@@ -1,5 +1,4 @@
 Flask==0.10.1
-Flask-Bcrypt==0.5.2
 Flask-Migrate==1.2.0
 Flask-SQLAlchemy==1.0
 Flask-Script==0.6.7
@@ -12,6 +11,7 @@ Werkzeug==0.9.4
 alembic==0.6.3
 argparse==1.2.1
 itsdangerous==0.23
+passlib==1.6.2
 psycopg2==2.5.2
 py-bcrypt==0.4
 wsgiref==0.1.2
