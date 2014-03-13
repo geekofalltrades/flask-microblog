@@ -1,6 +1,6 @@
 {% extends "base.html" %}
-{% if user is defined %}
-<p>Logged in as {{ user }} - <a href="/logout">Log Out</a></p>
+{% if session.logged_in %}
+<p>Logged in as {{ session.user }} - <a href="/logout">Log Out</a></p>
 {% else %}
 <p>Not logged in - <a href="/login">Log In</a> or <a href="/register">Register</a></p>
 {% endif %}

@@ -3,12 +3,13 @@ from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.script import Manager
 from flask.ext.migrate import Migrate, MigrateCommand
 from flask.ext.seasurf import SeaSurf
+from flask.ext.bcrpyt import Bcrypt
 from sqlalchemy import desc
 from datetime import datetime
-from hashlib import sha1
 
 app = Flask(__name__)
 csrf = SeaSurf(app)
+bcrypt = Bcrypt(app)
 app.config['SQLALCHEMY_DATABASE_URI'] = \
     'postgresql+psycopg2:///microblog'
 #app.config['SQLALCHEMY_COMMIT_ON_TEARDOWN'] = True
@@ -104,9 +105,8 @@ def login_view():
         except:
             pass
         else:
-            p = sha1()
-            p.update(request.form['password'])
-            if password == p.hexdigest():
+            if bcrypt.check_password_hash(
+                    password, request.form['password']):
                 pass
                 #log in
             else:
@@ -141,10 +141,7 @@ def read_post(id):
 
 def add_user(username, password):
     """Add a new user to the database's 'user' table."""
-    p = sha1()
-    p.update(password)
-
-    new_user = User(username, p.hexdigest())
+    new_user = User(username, bcrypt.generate_password_hash(password))
 
     db.session.add(new_user)
     db.session.commit()
