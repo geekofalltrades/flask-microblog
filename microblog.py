@@ -4,7 +4,7 @@ from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.script import Manager
 from flask.ext.migrate import Migrate, MigrateCommand
 from flask.ext.seasurf import SeaSurf
-#from sqlalchemy.ext import IntegrityError
+from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from passlib.hash import bcrypt
 from sqlalchemy import desc
 from datetime import datetime
@@ -171,7 +171,7 @@ def read_user(username):
     """Fetch the password associated with a username from the database."""
     user = User.query.filter_by(username=username).first()
     if user is None:
-        raise KeyError("This user does not exist.")
+        raise NotFoundError("This user does not exist.")
     return user.password, user.id
 
 
@@ -194,6 +194,12 @@ def _logout():
     session.pop('username', None)
     session.pop('user_id', None)
 
+
+class NotFoundError(SQLAlchemyError):
+    """Exception raised when the expected item is not present in a table
+    query response.
+    """
+    pass
 
 if __name__ == '__main__':
     manager.run()
