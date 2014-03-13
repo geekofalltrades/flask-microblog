@@ -4,18 +4,21 @@ from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.script import Manager
 from flask.ext.migrate import Migrate, MigrateCommand
 from flask.ext.seasurf import SeaSurf
+from sqlalchemy.ext import IntegrityError
 from passlib.hash import bcrypt
 from sqlalchemy import desc
 from datetime import datetime
 
 app = Flask(__name__)
-csrf = SeaSurf(app)
-app.config['SQLALCHEMY_DATABASE_URI'] = \
-    'postgresql+psycopg2:///microblog'
-#app.config['SQLALCHEMY_COMMIT_ON_TEARDOWN'] = True
-app.secret_key = 'notaparticularlysecurekey'
+app.config.from_pyfile('default_config.py')
+app.config.from_envvar('MICROBLOG_CONFIG', silent=True)
+
 db = SQLAlchemy(app)
+
+csrf = SeaSurf(app)
+
 migrate = Migrate(app, db)
+
 manager = Manager(app)
 manager.add_command('db', MigrateCommand)
 
@@ -24,10 +27,10 @@ class Post(db.Model):
     """A blog post."""
     __tablename__ = 'posts'
     id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(255), unique=True)
-    body = db.Column(db.Text)
-    timestamp = db.Column(db.DateTime)
-    auth_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    title = db.Column(db.String(255), unique=True, nullable=False)
+    body = db.Column(db.Text, nullable=False)
+    timestamp = db.Column(db.DateTime, nullable=False)
+    auth_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
 
     def __init__(self, title=None, body=None, auth_id=None):
         self.title = title
@@ -40,12 +43,12 @@ class User(db.Model):
     """A user."""
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(255), unique=True)
-    password = db.Column(db.String(255))
-    timestamp = db.Column(db.DateTime)
+    username = db.Column(db.String(255), unique=True, nullable=False)
+    password = db.Column(db.String(255), nullable=False)
+    timestamp = db.Column(db.DateTime, nullable=False)
     posts = db.relationship('Post', backref="author")
 
-    def __init__(self, username, password):
+    def __init__(self, username=username, password=password):
         self.username = username
         self.password = password
         self.timestamp = datetime.utcnow()
@@ -101,7 +104,7 @@ def login_view():
         else:
             if bcrypt.verify(request.form['password'], password):
                 session['logged_in'] = True
-                session['user'] = request.form['username']
+                session['username'] = request.form['username']
                 session['user_id'] = user_id
             else:
                 flash("Incorrect password.", category='error')
@@ -129,6 +132,15 @@ def register_view():
 
 def write_post(title=None, body=None, auth_id=None):
     """Create a new blog post."""
+    if not title:
+        title = None
+    if not body:
+        body = None
+    if not auth_id:
+        auth_id = None
+
+    print title, body, auth_id
+
     new_post = Post(title, body, auth_id)
 
     db.session.add(new_post)
@@ -163,6 +175,26 @@ def read_user(username):
     if user is None:
         raise KeyError("This user does not exist.")
     return user.password, user.id
+
+
+def _login(username, password):
+    """Allows a user to log in programmatically. For testing."""
+
+    dbpass, user_id = read_user(username)
+    if bcrypt.verify(password, dbpass):
+        session['logged_in'] = True
+        session['username'] = request.form['username']
+        session['user_id'] = user_id
+    else:
+        raise KeyError("Incorrect password in _login.")
+
+
+def _logout():
+    """Allows a user to log out programmatically. For testing."""
+
+    session.pop('logged_in', None)
+    session.pop('username', None)
+    session.pop('user_id', None)
 
 
 if __name__ == '__main__':
