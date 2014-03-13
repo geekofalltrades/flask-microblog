@@ -4,6 +4,11 @@
         <title>Flask Microblog</title>
     </head>
     <body>
+        {% if user is defined %}
+        <p>Logged in as {{ user }} - <a href="/logout">Log Out</a></p>
+        {% else %}
+        <p>Not logged in - <a href="/login">Log In</a> or <a href="/register">Register</a></p>
+        {% endif %}
         {% block content %}{% endblock %}
     </body>
 </html>
