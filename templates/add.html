@@ -3,6 +3,7 @@
 <h2>Create New Post</h2>
 <a href="/">Home</a>
 <form method="POST" id="newpost">
+    <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
     <input type="text" name="title" maxlength="255" />
     <textarea form="newpost" name="body"></textarea>
     <input type="submit" name="submit" />
