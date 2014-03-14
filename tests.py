@@ -350,7 +350,11 @@ class TestAddView(unittest.TestCase):
         microblog.db.create_all()
         microblog.add_user('admin', 'password')
         password, self.user_id = microblog.read_user('admin')
-        self.post = ('Blog 1', 'O Blarghag', self.user_id)
+        self.post = {
+            'title': 'Blog 1',
+            'body': 'O Blarghag',
+            'auth_id': self.user_id,
+        }
 
     def tearDown(self):
         microblog.db.session.remove()
@@ -384,12 +388,23 @@ class TestAddView(unittest.TestCase):
             self.assertIn(
                 'You must be logged in to create new posts.', request.data)
 
-    # def test_add_view_post(self):
-    #     with microblog.app.test_client() as c:
-    #         request = c.get('/add')
-    #         self.assertIn('Sorry.', request.data)
-    #         self.assertIn(
-    #             'You must be logged in to create new posts.', request.data)
+    def test_add_view_post(self):
+        """Post a request to the view page (when logged in) and verify
+        that we're redirected to the home page and that our new post
+        appears on the home page.
+        """
+        with microblog.app.test_client() as c:
+            data = {
+               # '_csrf_token': flask.session['_csrf_token'],
+                'username': 'admin',
+                'password': 'password',
+            }
+            c.post('/login', data=data)
+            request = c.post(
+                '/add', data=self.post, follow_redirects=True)
+            self.assertIn('Blog 1', request.data)
+            self.assertIn('by admin on', request.data)
+            self.assertIn('O Blarghag', request.data)
 
     # def test_add_view_no_body(self):
     #     pass
