@@ -49,10 +49,28 @@ class User(db.Model):
     password = db.Column(db.String(255), nullable=False)
     email = db.Column(db.String(255), unique=True, nullable=False)
     timestamp = db.Column(db.DateTime, nullable=False)
-    reg_key = db.Column(db.String(32), unique=True)
     posts = db.relationship('Post', backref="author")
 
-    def __init__(self, username=username, password=password, email=email):
+    def __init__(self, username=None, password=None, email=None):
+        self.username = username
+        self.password = password
+        self.email = email
+        self.timestamp = datetime.utcnow()
+
+
+class TempUser(db.Model):
+    """A temporary user. These are created when a new user registers, but
+    hasn't yet confirmed their registration.
+    """
+    __tablename__ = 'temp_users'
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(255), unique=True, nullable=False)
+    password = db.Column(db.String(255), nullable=False)
+    email = db.Column(db.String(255), unique=True, nullable=False)
+    timestamp = db.Column(db.DateTime, nullable=False)
+    regkey = db.Column(db.String(32), unique=True)
+
+    def __init__(self, username=None, password=None, email=None):
         self.username = username
         self.password = password
         self.email = email
