@@ -118,20 +118,25 @@ def add_view():
 def login_view():
     """Allows a user to log in."""
     if request.method == 'POST':
-        try:
-            password, user_id = read_user(request.form['username'])
-        except NotFoundError as e:
-            flash(e.message, category="error")
+        user = User.query.filter_by(username=request.form['username']).first()
+        if not User:
+            flash("This user does not exist.", category="error")
             return redirect(url_for('login_view'))
-        else:
-            if bcrypt.verify(request.form['password'], password):
-                session['logged_in'] = True
-                session['username'] = request.form['username']
-                session['user_id'] = user_id
-            else:
-                flash("Incorrect password.", category='error')
-                return redirect(url_for('login_view'))
+        elif user.reg_key:
+            message = "This username is registered, but not confirmed."
+            message += "Please check the email address you registered with"
+            message += "for a confirmation message. You must confirm your"
+            message += "registration before you can use your account."
+            flash(message, category='error')
+            return redirect(url_for('login_view'))
+        elif bcrypt.verify(request.form['password'], user.password):
+            session['logged_in'] = True
+            session['username'] = user.username
+            session['user_id'] = user.user_id
             return redirect(url_for('list_view'))
+        else:
+            flash("Incorrect password.", category='error')
+            return redirect(url_for('login_view'))
     else:
         return render_template('login.html')
 
@@ -181,8 +186,10 @@ def read_post(id):
     return post
 
 
-def add_user(username=None, password=None, email=None):
-    """Add a new user to the database's 'user' table."""
+def add_user(username=None, password=None, email=None, confirm=True):
+    """Add a new user to the database's 'user' table. If confirm is
+    specified as false, we skip the confirmation step for this user and
+    add them directly as an active user."""
     #Pre-checking has become necessary because SQLAlchemy's IntegrityError
     #doesn't convey enough information by itself about the nature of the
     #error.
@@ -209,26 +216,23 @@ def add_user(username=None, password=None, email=None):
     if messages:
         raise IntegrityError(messages)
 
-    #The only field left unvalidated is the reg_key field. We'll attempt
-    #to insert until we succeed in generating a unique one.
     new_user = User(username, bcrypt.encrypt(password), email)
-    while True:
-        try:
-            db.session.add(new_user)
-            db.session.commit()
-        except IntegrityError:
-            db.session.rollback()
-            new_user.generate_reg_key()
-            continue
-        break
-
-
-def read_user(username):
-    """Fetch the password associated with a username from the database."""
-    user = User.query.filter_by(username=username).first()
-    if user is None:
-        raise NotFoundError("This user does not exist.")
-    return user.password, user.id
+    if confirm:
+        #The only field left unvalidated is the reg_key field. We'll attempt
+        #to insert until we succeed in generating a unique one.
+        while True:
+            try:
+                db.session.add(new_user)
+                db.session.commit()
+            except IntegrityError:
+                db.session.rollback()
+                new_user.generate_reg_key()
+                continue
+            break
+    else:
+        new_user.reg_key = None
+        db.session.add(new_user)
+        db.session.commit()
 
 
 class NotFoundError(SQLAlchemyError):
