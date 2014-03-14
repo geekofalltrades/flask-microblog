@@ -8,6 +8,8 @@ from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from passlib.hash import bcrypt
 from sqlalchemy import desc
 from datetime import datetime
+from random import choice
+import string
 
 app = Flask(__name__)
 app.config.from_pyfile('default_config.py')
@@ -45,13 +47,25 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(255), unique=True, nullable=False)
     password = db.Column(db.String(255), nullable=False)
+    email = db.Column(db.String(255), unique=True, nullable=False)
     timestamp = db.Column(db.DateTime, nullable=False)
+    reg_key = db.Column(db.String(32), unique=True)
     posts = db.relationship('Post', backref="author")
 
-    def __init__(self, username=username, password=password):
+    def __init__(self, username=username, password=password, email=email):
         self.username = username
         self.password = password
+        self.email = email
         self.timestamp = datetime.utcnow()
+        self.generate_reg_key()
+
+    def generate_reg_key(self):
+        """Generate a random, 32-character string as a registration key.
+        This function can also be called to regenerate keys if the key
+        just generated is not unique.
+        """
+        self.reg_key = \
+            ''.join(choice(string.letters, string.digits) for i in range(32))
 
 
 @app.route("/")
