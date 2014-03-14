@@ -68,21 +68,21 @@ class TempUser(db.Model):
     password = db.Column(db.String(255), nullable=False)
     email = db.Column(db.String(255), unique=True, nullable=False)
     timestamp = db.Column(db.DateTime, nullable=False)
-    regkey = db.Column(db.String(32), unique=True)
+    regkey = db.Column(db.String(32), unique=True, nullable=False)
 
     def __init__(self, username=None, password=None, email=None):
         self.username = username
         self.password = password
         self.email = email
         self.timestamp = datetime.utcnow()
-        self.generate_reg_key()
+        self.generate_regkey()
 
-    def generate_reg_key(self):
+    def generate_regkey(self):
         """Generate a random, 32-character string as a registration key.
         This function can also be called to regenerate keys if the key
         just generated is not unique.
         """
-        self.reg_key = \
+        self.regkey = \
             ''.join(choice(string.letters + string.digits) for i in range(32))
 
 
@@ -123,10 +123,6 @@ def add_view():
                 return redirect(url_for('add_view'))
             return redirect(url_for('list_view'))
         else:
-            # flash(
-            #     "You must be logged in to perform that action.",
-            #     category="error"
-            # )
             return redirect(url_for('add_view'))
     else:
         return render_template('add.html')
@@ -138,14 +134,16 @@ def login_view():
     if request.method == 'POST':
         user = User.query.filter_by(username=request.form['username']).first()
         if not user:
-            flash("This user does not exist.", category="error")
-            return redirect(url_for('login_view'))
-        elif user.reg_key:
-            message = "This username is registered, but not confirmed."
-            message += "Please check the email address you registered with"
-            message += "for a confirmation message. You must confirm your"
-            message += "registration before you can use your account."
-            flash(message, category='error')
+            user = TempUser.query.filter_by(
+                username=request.form['username']).first()
+            if not user:
+                flash("This user does not exist.", category="error")
+            else:
+                message = "This username is registered, but not confirmed."
+                message += "Please check the email address you registered with"
+                message += "for a confirmation message. You must confirm your"
+                message += "registration before you can use your account."
+                flash(message, category='error')
             return redirect(url_for('login_view'))
         elif bcrypt.verify(request.form['password'], user.password):
             session['logged_in'] = True
