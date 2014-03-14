@@ -289,6 +289,18 @@ class TestListView(unittest.TestCase):
         microblog.db.session.remove()
         microblog.db.drop_all()
 
+    def test_list_view_one_post(self):
+        pass
+
+    def test_list_view_multiple_posts(self):
+        pass
+
+    def test_list_view_logged_in(self):
+        pass
+
+    def test_list_view_logged_out(self):
+        pass
+
 
 class TestAddView(unittest.TestCase):
     """Test the add view (add_view function) of the microblog."""
@@ -300,6 +312,21 @@ class TestAddView(unittest.TestCase):
     def tearDown(self):
         microblog.db.session.remove()
         microblog.db.drop_all()
+
+    def test_add_view_logged_in(self):
+        pass
+
+    def test_add_view_logged_out(self):
+        pass
+
+    def test_add_view_post(self):
+        pass
+
+    def test_add_view_no_body(self):
+        pass
+
+    def test_add_view_no_title(self):
+        pass
 
 
 class TestPermalinkView(unittest.TestCase):
@@ -313,6 +340,15 @@ class TestPermalinkView(unittest.TestCase):
     def tearDown(self):
         microblog.db.session.remove()
         microblog.db.drop_all()
+
+    def test_permalink_view(self):
+        pass
+
+    def test_permalink_view_logged_in(self):
+        pass
+
+    def test_permalink_view_logged_out(self):
+        pass
 
 
 #Start testing views
