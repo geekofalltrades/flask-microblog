@@ -181,12 +181,46 @@ def read_post(id):
     return post
 
 
-def add_user(username, password):
+def add_user(username=None, password=None, email=None):
     """Add a new user to the database's 'user' table."""
-    new_user = User(username, bcrypt.encrypt(password))
+    #Pre-checking has become necessary because SQLAlchemy's IntegrityError
+    #doesn't convey enough information by itself about the nature of the
+    #error.
+    messages = []
 
-    db.session.add(new_user)
-    db.session.commit()
+    #First, validate the form input.
+    if not username:
+        messages.append("Username is a required field.")
+    if not password:
+        messages.append("Password is a required field.")
+    if not email:
+        messages.append("Email address is a required field.")
+    if messages:
+        raise IntegrityError(messages)
+
+    #If form input was good, assure that the necessary fields are unique
+    user = User.query.filter_by(username=username).first()
+    if user:
+        messages.append("This username is taken.")
+    user = User.query.filter_by(email=email).first()
+    if user:
+        messages.append(
+            "This email address is already registered to another user.")
+    if messages:
+        raise IntegrityError(messages)
+
+    #The only field left unvalidated is the reg_key field. We'll attempt
+    #to insert until we succeed in generating a unique one.
+    new_user = User(username, bcrypt.encrypt(password), email)
+    while True:
+        try:
+            db.session.add(new_user)
+            db.session.commit()
+        except IntegrityError:
+            db.session.rollback()
+            new_user.generate_reg_key()
+            continue
+        break
 
 
 def read_user(username):
@@ -202,6 +236,7 @@ class NotFoundError(SQLAlchemyError):
     query response.
     """
     pass
+
 
 if __name__ == '__main__':
     manager.run()
