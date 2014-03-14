@@ -180,12 +180,46 @@ class TestReadUser(unittest.TestCase):
 
 class TestLoginView(unittest.TestCase):
     """Test the login view (login_view function) of the microblog."""
-    pass
+    def setUp(self):
+        microblog.db.create_all()
+        microblog.add_user('admin', 'password')
+
+    def tearDown(self):
+        microblog.db.session.remove()
+        microblog.db.drop_all()
+
+    def test_login_get(self):
+        """Assure that the proper HTML elements are present on the page
+        returned by a GET request to the login view.
+        """
+
+    def test_login_post(self):
+        """Assure that a POST request to the login page logs the user in.
+        """
+
+    def test_login_bad_username(self):
+        """Verify that a POST to the login page with a nonexistant
+        username flashes the appropriate on-screen message.
+        """
+
+    def test_login_bad_password(self):
+        """Verify that a POST to the login page with an incorrect password
+        flashes the appropriate on-screen message.
+        """
 
 
 class TestLogoutView(unittest.TestCase):
     """Test the logout view (logout_view function) of the microblog."""
-    pass
+    def setUp(self):
+        microblog.db.create_all()
+        microblog.add_user('admin', 'password')
+
+    def tearDown(self):
+        microblog.db.session.remove()
+        microblog.db.drop_all()
+
+    def test_logout(self):
+        """Assure that a call to the logout page logs the user out."""
 
 
 #Start testing views
