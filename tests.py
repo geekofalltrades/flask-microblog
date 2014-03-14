@@ -168,13 +168,13 @@ class TestAddUser(unittest.TestCase):
     def test_add_with_confirm(self):
         """Add several valid users to the database with the confirm flag
         set to true and verify that they appear as expected, along with
-        unique reg_keys.
+        unique regkeys.
         """
         pass
 
     def test_add_without_confirm(self):
         """Add several valid users to the database without the confirm
-        flag and verify that they appear as expected, with no reg_keys.
+        flag and verify that they appear as expected, with no regkeys.
         """
         pass
 
