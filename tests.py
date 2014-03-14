@@ -255,6 +255,7 @@ class TestLogoutView(unittest.TestCase):
     def setUp(self):
         microblog.db.create_all()
         microblog.add_user('admin', 'password')
+        password, self.user_id = microblog.read_user('admin')
 
     def tearDown(self):
         microblog.db.session.remove()
@@ -262,6 +263,19 @@ class TestLogoutView(unittest.TestCase):
 
     def test_logout(self):
         """Assure that a call to the logout page logs the user out."""
+        with microblog.app.test_client() as c:
+            data = {
+               # '_csrf_token': flask.session['_csrf_token'],
+                'username': 'admin',
+                'password': 'password',
+            }
+            c.post('/login', data=data)
+            c.get('/logout')
+            self.assertFalse(flask.session.get('logged_in', None))
+            self.assertNotEqual(
+                flask.session.get('username', None), data['username'])
+            self.assertNotEqual(
+                flask.session.get('user_id', None), self.user_id)
 
 
 #Start testing views
