@@ -9,7 +9,8 @@ class TestWritePost(unittest.TestCase):
     """Test the write_post function of the microblog."""
     def setUp(self):
         microblog.db.create_all()
-        microblog.add_user('admin', 'password')
+        microblog.add_user(
+            'admin', 'password', 'email@email.com', confirm=False)
         self.auth_id = \
             microblog.User.query.filter_by(username='admin').first().id
         self.title = "A Blog Title"
@@ -68,7 +69,8 @@ class TestReadPosts(unittest.TestCase):
     """Test the read_posts function of the microblog."""
     def setUp(self):
         microblog.db.create_all()
-        microblog.add_user('admin', 'password')
+        microblog.add_user(
+            'admin', 'password', 'email@email.com', confirm=False)
         self.auth_id = \
             microblog.User.query.filter_by(username='admin').first().id
         self.posts = {
@@ -111,7 +113,8 @@ class TestReadPost(unittest.TestCase):
     """Test the read_post function of the microblog."""
     def setUp(self):
         microblog.db.create_all()
-        microblog.add_user('admin', 'password')
+        microblog.add_user(
+            'admin', 'password', 'email@email.com', confirm=False)
         self.auth_id = \
             microblog.User.query.filter_by(username='admin').first().id
         self.posts = {
@@ -143,7 +146,8 @@ class TestAddUser(unittest.TestCase):
     """Test the add_user function of the microblog."""
     def setUp(self):
         microblog.db.create_all()
-        microblog.add_user('admin', 'password')
+        microblog.add_user(
+            'admin', 'password', 'email@email.com', confirm=False)
         self.auth_id = \
             microblog.User.query.filter_by(username='admin').first().id
         self.users = {
@@ -167,7 +171,8 @@ class TestLoginView(unittest.TestCase):
     """Test the login view (login_view function) of the microblog."""
     def setUp(self):
         microblog.db.create_all()
-        microblog.add_user('admin', 'password')
+        microblog.add_user(
+            'admin', 'password', 'email@email.com', confirm=False)
         self.auth_id = \
             microblog.User.query.filter_by(username='admin').first().id
 
@@ -239,7 +244,8 @@ class TestLogoutView(unittest.TestCase):
     """Test the logout view (logout_view function) of the microblog."""
     def setUp(self):
         microblog.db.create_all()
-        microblog.add_user('admin', 'password')
+        microblog.add_user(
+            'admin', 'password', 'email@email.com', confirm=False)
         self.user_id = \
             microblog.User.query.filter_by(username='admin').first().id
 
@@ -268,7 +274,8 @@ class TestListView(unittest.TestCase):
     """Test the list view (list_view function) of the microblog."""
     def setUp(self):
         microblog.db.create_all()
-        microblog.add_user('admin', 'password')
+        microblog.add_user(
+            'admin', 'password', 'email@email.com', confirm=False)
         self.user_id = \
             microblog.User.query.filter_by(username='admin').first().id
         self.posts = {
@@ -334,7 +341,8 @@ class TestAddView(unittest.TestCase):
     """Test the add view (add_view function) of the microblog."""
     def setUp(self):
         microblog.db.create_all()
-        microblog.add_user('admin', 'password')
+        microblog.add_user(
+            'admin', 'password', 'email@email.com', confirm=False)
         self.user_id = \
             microblog.User.query.filter_by(username='admin').first().id
         self.post = {
@@ -450,7 +458,8 @@ class TestPermalinkView(unittest.TestCase):
     """
     def setUp(self):
         microblog.db.create_all()
-        microblog.add_user('admin', 'password')
+        microblog.add_user(
+            'admin', 'password', 'email@email.com', confirm=False)
         self.auth_id = \
             microblog.User.query.filter_by(username='admin').first().id
         self.posts = {
