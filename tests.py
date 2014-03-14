@@ -219,11 +219,35 @@ class TestLoginView(unittest.TestCase):
         """Verify that a POST to the login page with a nonexistant
         username flashes the appropriate on-screen message.
         """
+        with microblog.app.test_client() as c:
+            data = {
+               # '_csrf_token': flask.session['_csrf_token'],
+                'username': 'fff',
+                'password': 'password',
+            }
+            request = c.post('/login', data=data, follow_redirects=True)
+            self.assertIn("This user does not exist.", request.data)
+            self.assertIn('_csrf_token', request.data)
+            self.assertIn('username', request.data)
+            self.assertIn('password', request.data)
+            self.assertIn('Log In', request.data)
 
     def test_login_bad_password(self):
         """Verify that a POST to the login page with an incorrect password
         flashes the appropriate on-screen message.
         """
+        with microblog.app.test_client() as c:
+            data = {
+               # '_csrf_token': flask.session['_csrf_token'],
+                'username': 'admin',
+                'password': 'wrongpass',
+            }
+            request = c.post('/login', data=data, follow_redirects=True)
+            self.assertIn("Incorrect password.", request.data)
+            self.assertIn('_csrf_token', request.data)
+            self.assertIn('username', request.data)
+            self.assertIn('password', request.data)
+            self.assertIn('Log In', request.data)
 
 
 class TestLogoutView(unittest.TestCase):

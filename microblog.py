@@ -98,7 +98,7 @@ def login_view():
     if request.method == 'POST':
         try:
             password, user_id = read_user(request.form['username'])
-        except KeyError as e:
+        except NotFoundError as e:
             flash(e.message, category="error")
             return redirect(url_for('login_view'))
         else:
