@@ -10,7 +10,8 @@ class TestWritePost(unittest.TestCase):
     def setUp(self):
         microblog.db.create_all()
         microblog.add_user('admin', 'password')
-        password, self.auth_id = microblog.read_user('admin')
+        self.auth_id = \
+            microblog.User.query.filter_by(username='admin').first().id
         self.title = "A Blog Title"
         self.body = "A Blog Body"
 
@@ -68,7 +69,8 @@ class TestReadPosts(unittest.TestCase):
     def setUp(self):
         microblog.db.create_all()
         microblog.add_user('admin', 'password')
-        password, self.auth_id = microblog.read_user('admin')
+        self.auth_id = \
+            microblog.User.query.filter_by(username='admin').first().id
         self.posts = {
             'A Blog Title': 'A Blog Body',
             'Eye-Catching Headline': 'Earth-Shattering Content',
@@ -110,7 +112,8 @@ class TestReadPost(unittest.TestCase):
     def setUp(self):
         microblog.db.create_all()
         microblog.add_user('admin', 'password')
-        password, self.auth_id = microblog.read_user('admin')
+        self.auth_id = \
+            microblog.User.query.filter_by(username='admin').first().id
         self.posts = {
             "Blog 1": "A Blog Body",
             "Blog 2": "Another Blog Body",
@@ -136,46 +139,26 @@ class TestReadPost(unittest.TestCase):
         self.assertRaises(microblog.NotFoundError, microblog.read_post, 4)
 
 
-# class TestAddUser(unittest.TestCase):
-#     """Test the add_user function of the microblog."""
-#     def setUp(self):
-#         microblog.db.create_all()
-#         microblog.add_user('admin', 'password')
-#         password, self.auth_id = microblog.read_user('admin')
-#         self.users = {
-#             'user1': 'pass1',
-#             'user2': 'pass2',
-#             'user3': 'pass3',
-#         }
-
-#     def tearDown(self):
-#         microblog.db.session.remove()
-#         microblog.db.drop_all()
-
-#     def test_add_user(self):
-#         """Add a user to the database and verify that that user has been
-#         inserted into the database.
-#         """
-#         pass
-
-
-class TestReadUser(unittest.TestCase):
-    """Test the read_user function of the microblog."""
+class TestAddUser(unittest.TestCase):
+    """Test the add_user function of the microblog."""
     def setUp(self):
         microblog.db.create_all()
         microblog.add_user('admin', 'password')
+        self.auth_id = \
+            microblog.User.query.filter_by(username='admin').first().id
+        self.users = {
+            'user1': 'pass1',
+            'user2': 'pass2',
+            'user3': 'pass3',
+        }
 
     def tearDown(self):
         microblog.db.session.remove()
         microblog.db.drop_all()
 
-    def test_fetch_existent_user(self):
-        """Read a user from the database who is in the database."""
-        pass
-
-    def test_fetch_nonexistant_user(self):
-        """Attempt to read a user from the database who is not in the
-        database.
+    def test_add_user(self):
+        """Add a user to the database and verify that that user has been
+        inserted into the database.
         """
         pass
 
@@ -185,7 +168,8 @@ class TestLoginView(unittest.TestCase):
     def setUp(self):
         microblog.db.create_all()
         microblog.add_user('admin', 'password')
-        password, self.user_id = microblog.read_user('admin')
+        self.auth_id = \
+            microblog.User.query.filter_by(username='admin').first().id
 
     def tearDown(self):
         microblog.db.session.remove()
@@ -256,7 +240,8 @@ class TestLogoutView(unittest.TestCase):
     def setUp(self):
         microblog.db.create_all()
         microblog.add_user('admin', 'password')
-        password, self.user_id = microblog.read_user('admin')
+        self.user_id = \
+            microblog.User.query.filter_by(username='admin').first().id
 
     def tearDown(self):
         microblog.db.session.remove()
@@ -284,7 +269,8 @@ class TestListView(unittest.TestCase):
     def setUp(self):
         microblog.db.create_all()
         microblog.add_user('admin', 'password')
-        password, self.user_id = microblog.read_user('admin')
+        self.user_id = \
+            microblog.User.query.filter_by(username='admin').first().id
         self.posts = {
             "Blog 1": "A Blog Body",
             "Blog 2": "Another Blog Body",
@@ -349,7 +335,8 @@ class TestAddView(unittest.TestCase):
     def setUp(self):
         microblog.db.create_all()
         microblog.add_user('admin', 'password')
-        password, self.user_id = microblog.read_user('admin')
+        self.user_id = \
+            microblog.User.query.filter_by(username='admin').first().id
         self.post = {
             'title': 'Blog 1',
             'body': 'O Blarghag',
@@ -464,7 +451,8 @@ class TestPermalinkView(unittest.TestCase):
     def setUp(self):
         microblog.db.create_all()
         microblog.add_user('admin', 'password')
-        password, self.user_id = microblog.read_user('admin')
+        self.auth_id = \
+            microblog.User.query.filter_by(username='admin').first().id
         self.posts = {
             "Blog 1": "A Blog Body",
             "Blog 2": "Another Blog Body",
