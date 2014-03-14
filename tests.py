@@ -344,31 +344,58 @@ class TestListView(unittest.TestCase):
             self.assertIn('Not logged in', request.data)
 
 
-# class TestAddView(unittest.TestCase):
-#     """Test the add view (add_view function) of the microblog."""
-#     def setUp(self):
-#         microblog.db.create_all()
-#         microblog.add_user('admin', 'password')
-#         password, self.user_id = microblog.read_user('admin')
+class TestAddView(unittest.TestCase):
+    """Test the add view (add_view function) of the microblog."""
+    def setUp(self):
+        microblog.db.create_all()
+        microblog.add_user('admin', 'password')
+        password, self.user_id = microblog.read_user('admin')
+        self.post = ('Blog 1', 'O Blarghag', self.user_id)
 
-#     def tearDown(self):
-#         microblog.db.session.remove()
-#         microblog.db.drop_all()
+    def tearDown(self):
+        microblog.db.session.remove()
+        microblog.db.drop_all()
 
-#     def test_add_view_logged_in(self):
-#         pass
+    def test_add_view_logged_in(self):
+        """Asser that the version of the add page delivered when logged
+        in presents the user with form options that allow them to create
+        a new post.
+        """
+        with microblog.app.test_client() as c:
+            data = {
+               # '_csrf_token': flask.session['_csrf_token'],
+                'username': 'admin',
+                'password': 'password',
+            }
+            c.post('/login', data=data)
+            request = c.get('/add')
+            self.assertIn('_csrf_token', request.data)
+            self.assertIn('title', request.data)
+            self.assertIn('body', request.data)
+            self.assertIn('submit', request.data)
 
-#     def test_add_view_logged_out(self):
-#         pass
+    def test_add_view_logged_out(self):
+        """Assert that the version of the add page we get when logged out
+        is the version that does not include a form.
+        """
+        with microblog.app.test_client() as c:
+            request = c.get('/add')
+            self.assertIn('Sorry.', request.data)
+            self.assertIn(
+                'You must be logged in to create new posts.', request.data)
 
-#     def test_add_view_post(self):
-#         pass
+    # def test_add_view_post(self):
+    #     with microblog.app.test_client() as c:
+    #         request = c.get('/add')
+    #         self.assertIn('Sorry.', request.data)
+    #         self.assertIn(
+    #             'You must be logged in to create new posts.', request.data)
 
-#     def test_add_view_no_body(self):
-#         pass
+    # def test_add_view_no_body(self):
+    #     pass
 
-#     def test_add_view_no_title(self):
-#         pass
+    # def test_add_view_no_title(self):
+    #     pass
 
 
 class TestPermalinkView(unittest.TestCase):
