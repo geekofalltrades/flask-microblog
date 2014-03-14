@@ -65,7 +65,7 @@ class User(db.Model):
         just generated is not unique.
         """
         self.reg_key = \
-            ''.join(choice(string.letters, string.digits) for i in range(32))
+            ''.join(choice(string.letters + string.digits) for i in range(32))
 
 
 @app.route("/")
@@ -119,7 +119,7 @@ def login_view():
     """Allows a user to log in."""
     if request.method == 'POST':
         user = User.query.filter_by(username=request.form['username']).first()
-        if not User:
+        if not user:
             flash("This user does not exist.", category="error")
             return redirect(url_for('login_view'))
         elif user.reg_key:
@@ -132,7 +132,7 @@ def login_view():
         elif bcrypt.verify(request.form['password'], user.password):
             session['logged_in'] = True
             session['username'] = user.username
-            session['user_id'] = user.user_id
+            session['user_id'] = user.id
             return redirect(url_for('list_view'))
         else:
             flash("Incorrect password.", category='error')
@@ -203,7 +203,7 @@ def add_user(username=None, password=None, email=None, confirm=True):
     if not email:
         messages.append("Email address is a required field.")
     if messages:
-        raise IntegrityError(messages)
+        raise ValueError(messages)
 
     #If form input was good, assure that the necessary fields are unique
     user = User.query.filter_by(username=username).first()
@@ -214,7 +214,7 @@ def add_user(username=None, password=None, email=None, confirm=True):
         messages.append(
             "This email address is already registered to another user.")
     if messages:
-        raise IntegrityError(messages)
+        raise ValueError(messages)
 
     new_user = User(username, bcrypt.encrypt(password), email)
     if confirm:

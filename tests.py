@@ -173,7 +173,7 @@ class TestLoginView(unittest.TestCase):
         microblog.db.create_all()
         microblog.add_user(
             'admin', 'password', 'email@email.com', confirm=False)
-        self.auth_id = \
+        self.user_id = \
             microblog.User.query.filter_by(username='admin').first().id
 
     def tearDown(self):
@@ -460,7 +460,7 @@ class TestPermalinkView(unittest.TestCase):
         microblog.db.create_all()
         microblog.add_user(
             'admin', 'password', 'email@email.com', confirm=False)
-        self.auth_id = \
+        self.user_id = \
             microblog.User.query.filter_by(username='admin').first().id
         self.posts = {
             "Blog 1": "A Blog Body",
