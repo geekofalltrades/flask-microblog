@@ -304,35 +304,44 @@ class TestListView(unittest.TestCase):
         """
         with microblog.app.test_client() as c:
             request = c.get('/')
-            for title, body in self.posts.items():
-                self.assertIn(title, request.data)
-                self.assertIn(body, request.data)
 
             match = re.search(
                 r'by admin on.+?by admin on.+?by admin on',
                 request.data,
+
+                #Ha. Ha. Ha. The regex metacharacter that literally and
+                #unambiguously means "any character" does not match newlines
+                #by default in Python. What a delightful and not at all
+                #dumb or infuriating convention.
                 re.DOTALL
             )
             self.assertTrue(match)
 
-            #Test whether the posts have appeared in the correct order:
-            #3, then 2, then 1
+            search_string = \
+                r'({2}).*?({1}).*?({0})'.format(*sorted(list(self.posts)))
+            match = re.search(search_string, request.data, re.DOTALL)
+            self.assertTrue(match)
+
             search_string = \
                 r'({Blog 3}).*?({Blog 2}).*?({Blog 1})'.format(**self.posts)
             match = re.search(search_string, request.data, re.DOTALL)
             self.assertTrue(match)
 
-    # def test_list_view_logged_in(self):
-    #     with microblog.app.test_client() as c:
-    #         data = {
-    #            # '_csrf_token': flask.session['_csrf_token'],
-    #             'username': 'admin',
-    #             'password': 'password',
-    #         }
-    #         c.post('/login', data=data)
+    def test_list_view_logged_in(self):
+        with microblog.app.test_client() as c:
+            data = {
+               # '_csrf_token': flask.session['_csrf_token'],
+                'username': 'admin',
+                'password': 'password',
+            }
+            c.post('/login', data=data)
+            request = c.get('/')
+            self.assertIn('Logged in as admin', request.data)
 
-    # def test_list_view_logged_out(self):
-    #     pass
+    def test_list_view_logged_out(self):
+        with microblog.app.test_client() as c:
+            request = c.get('/')
+            self.assertIn('Not logged in', request.data)
 
 
 # class TestAddView(unittest.TestCase):
