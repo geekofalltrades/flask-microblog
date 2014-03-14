@@ -406,11 +406,56 @@ class TestAddView(unittest.TestCase):
             self.assertIn('by admin on', request.data)
             self.assertIn('O Blarghag', request.data)
 
-    # def test_add_view_no_body(self):
-    #     pass
+    def test_add_view_post_not_logged_in(self):
+        """Verify that attempting to send a post request to the add view
+        while not logged in returns us to the logged out version of the
+        add view.
+        """
+        with microblog.app.test_client() as c:
+            request = c.post('/add', data=self.post, follow_redirects=True)
+            self.assertIn('Sorry.', request.data)
+            self.assertIn(
+                'You must be logged in to create new posts.', request.data)
 
-    # def test_add_view_no_title(self):
-    #     pass
+    def test_add_view_no_body(self):
+        """Verify that attempting to submit a post with no body returns
+        us to the add view with an error message.
+        """
+        with microblog.app.test_client() as c:
+            data = {
+               # '_csrf_token': flask.session['_csrf_token'],
+                'username': 'admin',
+                'password': 'password',
+            }
+            c.post('/login', data=data)
+            self.post['body'] = ''
+            request = c.post(
+                '/add', data=self.post, follow_redirects=True)
+            self.assertIn('Posts must have a title and a body.', request.data)
+            self.assertIn('_csrf_token', request.data)
+            self.assertIn('title', request.data)
+            self.assertIn('body', request.data)
+            self.assertIn('submit', request.data)
+
+    def test_add_view_no_title(self):
+        """Verify that attempting to submit a post with no title returns
+        us to the add view with an error message.
+        """
+        with microblog.app.test_client() as c:
+            data = {
+               # '_csrf_token': flask.session['_csrf_token'],
+                'username': 'admin',
+                'password': 'password',
+            }
+            c.post('/login', data=data)
+            self.post['title'] = ''
+            request = c.post(
+                '/add', data=self.post, follow_redirects=True)
+            self.assertIn('Posts must have a title and a body.', request.data)
+            self.assertIn('_csrf_token', request.data)
+            self.assertIn('title', request.data)
+            self.assertIn('body', request.data)
+            self.assertIn('submit', request.data)
 
 
 class TestPermalinkView(unittest.TestCase):

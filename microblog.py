@@ -77,17 +77,25 @@ def add_view():
     to the homepage (list view)."""
     if request.method == 'POST':
         if session.get('logged_in', False):
-            write_post(
-                request.form['title'],
-                request.form['body'],
-                session.get('user_id', None),
-            )
+            try:
+                write_post(
+                    request.form['title'],
+                    request.form['body'],
+                    session.get('user_id', None),
+                )
+            except IntegrityError:
+                flash(
+                    "Posts must have a title and a body.",
+                    category="error"
+                )
+                return redirect(url_for('add_view'))
+            return redirect(url_for('list_view'))
         else:
-            flash(
-                "You must be logged in to perform that action.",
-                category="error"
-            )
-        return redirect(url_for('list_view'))
+            # flash(
+            #     "You must be logged in to perform that action.",
+            #     category="error"
+            # )
+            return redirect(url_for('add_view'))
     else:
         return render_template('add.html')
 
