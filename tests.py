@@ -1,6 +1,7 @@
 import unittest
 import microblog
 from sqlalchemy.exc import IntegrityError
+import flask
 
 
 class TestWritePost(unittest.TestCase):
@@ -183,6 +184,7 @@ class TestLoginView(unittest.TestCase):
     def setUp(self):
         microblog.db.create_all()
         microblog.add_user('admin', 'password')
+        password, self.user_id = microblog.read_user('admin')
 
     def tearDown(self):
         microblog.db.session.remove()
@@ -192,10 +194,26 @@ class TestLoginView(unittest.TestCase):
         """Assure that the proper HTML elements are present on the page
         returned by a GET request to the login view.
         """
+        with microblog.app.test_client() as c:
+            request = c.get('/login')
+            self.assertIn('_csrf_token', request.data)
+            self.assertIn('username', request.data)
+            self.assertIn('password', request.data)
+            self.assertIn('Log In', request.data)
 
     def test_login_post(self):
         """Assure that a POST request to the login page logs the user in.
         """
+        with microblog.app.test_client() as c:
+            data = {
+               # '_csrf_token': flask.session['_csrf_token'],
+                'username': 'admin',
+                'password': 'password',
+            }
+            c.post('/login', data=data)
+            self.assertTrue(flask.session['logged_in'])
+            self.assertEqual(flask.session['username'], data['username'])
+            self.assertEqual(flask.session['user_id'], self.user_id)
 
     def test_login_bad_username(self):
         """Verify that a POST to the login page with a nonexistant
