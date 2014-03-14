@@ -175,26 +175,6 @@ def read_user(username):
     return user.password, user.id
 
 
-def _login(username, password):
-    """Allows a user to log in programmatically. For testing."""
-
-    dbpass, user_id = read_user(username)
-    if bcrypt.verify(password, dbpass):
-        session['logged_in'] = True
-        session['username'] = request.form['username']
-        session['user_id'] = user_id
-    else:
-        raise KeyError("Incorrect password in _login.")
-
-
-def _logout():
-    """Allows a user to log out programmatically. For testing."""
-
-    session.pop('logged_in', None)
-    session.pop('username', None)
-    session.pop('user_id', None)
-
-
 class NotFoundError(SQLAlchemyError):
     """Exception raised when the expected item is not present in a table
     query response.
