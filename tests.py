@@ -371,29 +371,48 @@ class TestListView(unittest.TestCase):
 #         pass
 
 
-# class TestPermalinkView(unittest.TestCase):
-#     """Test the permalink view (permalink_view function) of the microblog.
-#     """
-#     def setUp(self):
-#         microblog.db.create_all()
-#         microblog.add_user('admin', 'password')
-#         password, self.user_id = microblog.read_user('admin')
+class TestPermalinkView(unittest.TestCase):
+    """Test the permalink view (permalink_view function) of the microblog.
+    """
+    def setUp(self):
+        microblog.db.create_all()
+        microblog.add_user('admin', 'password')
+        password, self.user_id = microblog.read_user('admin')
+        self.posts = {
+            "Blog 1": "A Blog Body",
+            "Blog 2": "Another Blog Body",
+            "Blog 3": "A Third Blog Body",
+        }
+        for title, body in sorted(self.posts.items(), key=lambda x: x[0]):
+            microblog.write_post(title, body, self.user_id)
 
-#     def tearDown(self):
-#         microblog.db.session.remove()
-#         microblog.db.drop_all()
+    def tearDown(self):
+        microblog.db.session.remove()
+        microblog.db.drop_all()
 
-#     def test_permalink_view(self):
-#         pass
+    def test_permalink_view(self):
+        with microblog.app.test_client() as c:
+            request = c.get('/posts/1')
+            self.assertIn('Blog 1', request.data)
+            self.assertIn('by admin on', request.data)
+            self.assertIn(self.posts['Blog 1'], request.data)
 
-#     def test_permalink_view_logged_in(self):
-#         pass
+    def test_permalink_view_logged_in(self):
+        with microblog.app.test_client() as c:
+            data = {
+               # '_csrf_token': flask.session['_csrf_token'],
+                'username': 'admin',
+                'password': 'password',
+            }
+            c.post('/login', data=data)
+            request = c.get('/posts/1')
+            self.assertIn('Logged in as admin', request.data)
 
-#     def test_permalink_view_logged_out(self):
-#         pass
+    def test_permalink_view_logged_out(self):
+        with microblog.app.test_client() as c:
+            request = c.get('/posts/1')
+            self.assertIn('Not logged in', request.data)
 
-
-#Start testing views
 
 if __name__ == '__main__':
     unittest.main()
