@@ -146,24 +146,60 @@ class TestAddUser(unittest.TestCase):
     """Test the add_user function of the microblog."""
     def setUp(self):
         microblog.db.create_all()
-        microblog.add_user(
-            'admin', 'password', 'email@email.com', confirm=False)
         self.auth_id = \
             microblog.User.query.filter_by(username='admin').first().id
-        self.users = {
-            'user1': 'pass1',
-            'user2': 'pass2',
-            'user3': 'pass3',
+        self.good_users = {
+            'user1': ('user1', 'password', 'email1@email.com'),
+            'user2': ('user2', 'password', 'email2@email.com'),
+            'user3': ('user3', 'password', 'email3@email.com'),
+        }
+        self.bad_users = {
+            'username_collision': ('user1', 'password', 'email@email.com'),
+            'email_collision': ('user', 'password', 'email@email.com'),
+            'no_username': ('', 'password', 'email@email.com'),
+            'no_password': ('user', '', 'email@email.com'),
+            'no_email': ('user', 'password', '')
         }
 
     def tearDown(self):
         microblog.db.session.remove()
         microblog.db.drop_all()
 
-    def test_add_user(self):
-        """Add a user to the database and verify that that user has been
-        inserted into the database.
+    def test_add_with_confirm(self):
+        """Add several valid users to the database with the confirm flag
+        set to true and verify that they appear as expected, along with
+        unique reg_keys.
         """
+        pass
+
+    def test_add_without_confirm(self):
+        """Add several valid users to the database without the confirm
+        flag and verify that they appear as expected, with no reg_keys.
+        """
+        pass
+
+    def test_add_non_unique_username(self):
+        """Add several valid users, then add a user whose username collides
+        with one already in the database.
+        """
+        pass
+
+    def test_add_non_unique_email(self):
+        """Add several valid users, then add a user whose email address
+        collides with one already in the database.
+        """
+        pass
+
+    def test_add_no_username(self):
+        """Attempt to add a user who has no username."""
+        pass
+
+    def test_add_no_password(self):
+        """Attempt to add a user who has no password."""
+        pass
+
+    def test_add_no_email(self):
+        """Attempt to add a user who has no email address."""
         pass
 
 
