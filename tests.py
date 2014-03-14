@@ -2,6 +2,7 @@ import unittest
 import microblog
 from sqlalchemy.exc import IntegrityError
 import flask
+import re
 
 
 class TestWritePost(unittest.TestCase):
@@ -284,71 +285,103 @@ class TestListView(unittest.TestCase):
         microblog.db.create_all()
         microblog.add_user('admin', 'password')
         password, self.user_id = microblog.read_user('admin')
+        self.posts = {
+            "Blog 1": "A Blog Body",
+            "Blog 2": "Another Blog Body",
+            "Blog 3": "A Third Blog Body",
+        }
+        for title, body in sorted(self.posts.items(), key=lambda x: x[0]):
+            microblog.write_post(title, body, self.user_id)
 
     def tearDown(self):
         microblog.db.session.remove()
         microblog.db.drop_all()
 
-    def test_list_view_one_post(self):
-        pass
+    def test_list_view(self):
+        """Test that the list view contains inserted posts and that they
+        are in the correct order (most recently inserted post at the top
+        of the list).
+        """
+        with microblog.app.test_client() as c:
+            request = c.get('/')
+            for title, body in self.posts.items():
+                self.assertIn(title, request.data)
+                self.assertIn(body, request.data)
 
-    def test_list_view_multiple_posts(self):
-        pass
+            match = re.search(
+                r'by admin on.+?by admin on.+?by admin on',
+                request.data,
+                re.DOTALL
+            )
+            self.assertTrue(match)
 
-    def test_list_view_logged_in(self):
-        pass
+            #Test whether the posts have appeared in the correct order:
+            #3, then 2, then 1
+            search_string = \
+                r'({Blog 3}).*?({Blog 2}).*?({Blog 1})'.format(**self.posts)
+            match = re.search(search_string, request.data, re.DOTALL)
+            self.assertTrue(match)
 
-    def test_list_view_logged_out(self):
-        pass
+    # def test_list_view_logged_in(self):
+    #     with microblog.app.test_client() as c:
+    #         data = {
+    #            # '_csrf_token': flask.session['_csrf_token'],
+    #             'username': 'admin',
+    #             'password': 'password',
+    #         }
+    #         c.post('/login', data=data)
 
-
-class TestAddView(unittest.TestCase):
-    """Test the add view (add_view function) of the microblog."""
-    def setUp(self):
-        microblog.db.create_all()
-        microblog.add_user('admin', 'password')
-        password, self.user_id = microblog.read_user('admin')
-
-    def tearDown(self):
-        microblog.db.session.remove()
-        microblog.db.drop_all()
-
-    def test_add_view_logged_in(self):
-        pass
-
-    def test_add_view_logged_out(self):
-        pass
-
-    def test_add_view_post(self):
-        pass
-
-    def test_add_view_no_body(self):
-        pass
-
-    def test_add_view_no_title(self):
-        pass
+    # def test_list_view_logged_out(self):
+    #     pass
 
 
-class TestPermalinkView(unittest.TestCase):
-    """Test the permalink view (permalink_view function) of the microblog.
-    """
-    def setUp(self):
-        microblog.db.create_all()
-        microblog.add_user('admin', 'password')
-        password, self.user_id = microblog.read_user('admin')
+# class TestAddView(unittest.TestCase):
+#     """Test the add view (add_view function) of the microblog."""
+#     def setUp(self):
+#         microblog.db.create_all()
+#         microblog.add_user('admin', 'password')
+#         password, self.user_id = microblog.read_user('admin')
 
-    def tearDown(self):
-        microblog.db.session.remove()
-        microblog.db.drop_all()
+#     def tearDown(self):
+#         microblog.db.session.remove()
+#         microblog.db.drop_all()
 
-    def test_permalink_view(self):
-        pass
+#     def test_add_view_logged_in(self):
+#         pass
 
-    def test_permalink_view_logged_in(self):
-        pass
+#     def test_add_view_logged_out(self):
+#         pass
 
-    def test_permalink_view_logged_out(self):
-        pass
+#     def test_add_view_post(self):
+#         pass
+
+#     def test_add_view_no_body(self):
+#         pass
+
+#     def test_add_view_no_title(self):
+#         pass
+
+
+# class TestPermalinkView(unittest.TestCase):
+#     """Test the permalink view (permalink_view function) of the microblog.
+#     """
+#     def setUp(self):
+#         microblog.db.create_all()
+#         microblog.add_user('admin', 'password')
+#         password, self.user_id = microblog.read_user('admin')
+
+#     def tearDown(self):
+#         microblog.db.session.remove()
+#         microblog.db.drop_all()
+
+#     def test_permalink_view(self):
+#         pass
+
+#     def test_permalink_view_logged_in(self):
+#         pass
+
+#     def test_permalink_view_logged_out(self):
+#         pass
 
 
 #Start testing views
