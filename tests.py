@@ -278,6 +278,43 @@ class TestLogoutView(unittest.TestCase):
                 flask.session.get('user_id', None), self.user_id)
 
 
+class TestListView(unittest.TestCase):
+    """Test the list view (list_view function) of the microblog."""
+    def setUp(self):
+        microblog.db.create_all()
+        microblog.add_user('admin', 'password')
+        password, self.user_id = microblog.read_user('admin')
+
+    def tearDown(self):
+        microblog.db.session.remove()
+        microblog.db.drop_all()
+
+
+class TestAddView(unittest.TestCase):
+    """Test the add view (add_view function) of the microblog."""
+    def setUp(self):
+        microblog.db.create_all()
+        microblog.add_user('admin', 'password')
+        password, self.user_id = microblog.read_user('admin')
+
+    def tearDown(self):
+        microblog.db.session.remove()
+        microblog.db.drop_all()
+
+
+class TestPermalinkView(unittest.TestCase):
+    """Test the permalink view (permalink_view function) of the microblog.
+    """
+    def setUp(self):
+        microblog.db.create_all()
+        microblog.add_user('admin', 'password')
+        password, self.user_id = microblog.read_user('admin')
+
+    def tearDown(self):
+        microblog.db.session.remove()
+        microblog.db.drop_all()
+
+
 #Start testing views
 
 if __name__ == '__main__':
