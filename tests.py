@@ -645,27 +645,71 @@ class TestRegisterView(unittest.TestCase):
         """Verify that a get request to the register view displays the
         registration form.
         """
-        pass
+        with microblog.app.test_client() as c:
+            request = c.get('/register')
+            self.assertIn('Register', request.data)
+            self.assertIn('username', request.data)
+            self.assertIn('password', request.data)
+            self.assertIn('email', request.data)
 
     def test_register_post(self):
         """Verify that a post request to the register form (with valid
-        credentials) registers a new user.
+        credentials) registers a new user and then directs the user to
+        an instructions page telling them to look for an email.
         """
-        pass
+        with microblog.app.test_client() as c:
+            request = c.post('/register', data=self.user)
+            self.assertIn('Almost There...', request.data)
+            self.assertIn(
+                'Your new account is awaiting confirmation.', request.data)
+            self.assertIn(
+                'An email with confirmation instructions has been sent to',
+                request.data
+            )
+            self.assertIn(
+                'You will not be able to use your new account until it has been confirmed.',
+                request.data
+            )
+            self.assertIn('Home', request.data)
+
+        user = microblog.TempUser.query.filter_by(username='admin').first()
+        self.assertTrue(user)
 
     def test_flash_one_message(self):
         """Attempt to register an account invalid in one way (a username
         that is already taken) and verify that the error message returned
-        is flashed on the screen.
+        is flashed on the screen on the registration page.
         """
-        pass
+        with microblog.app.test_client() as c:
+            request = c.post(
+                '/register',
+                data=self.bad_users['username_collision'],
+                follow_redirects=True
+            )
+            self.assertIn('This username is taken.', request.data)
+            self.assertIn('Register', request.data)
+            self.assertIn('username', request.data)
+            self.assertIn('password', request.data)
+            self.assertIn('email', request.data)
 
     def test_flash_multiple_messages(self):
         """Attempt to register an account that is invalid in multiple
         ways (all fields left blank) and verify that the error messages
-        returned are all flashed on the screen.
+        returned are all flashed on the screen on the registration page.
         """
-        pass
+        with microblog.app.test_client() as c:
+            request = c.post(
+                '/register',
+                data=self.bad_users['blank_fields'],
+                follow_redirects=True
+            )
+            self.assertIn('Username is a required field.', request.data)
+            self.assertIn('Password is a required field.', request.data)
+            self.assertIn('Email address is a required field.', request.data)
+            self.assertIn('Register', request.data)
+            self.assertIn('username', request.data)
+            self.assertIn('password', request.data)
+            self.assertIn('email', request.data)
 
 
 class TestConfirmView(unittest.TestCase):
