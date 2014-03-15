@@ -146,8 +146,6 @@ class TestAddUser(unittest.TestCase):
     """Test the add_user function of the microblog."""
     def setUp(self):
         microblog.db.create_all()
-        self.auth_id = \
-            microblog.User.query.filter_by(username='admin').first().id
         self.good_users = {
             'user1': ('user1', 'password', 'email1@email.com'),
             'user2': ('user2', 'password', 'email2@email.com'),
@@ -240,6 +238,30 @@ class TestLoginView(unittest.TestCase):
             self.assertTrue(flask.session['logged_in'])
             self.assertEqual(flask.session['username'], data['username'])
             self.assertEqual(flask.session['user_id'], self.user_id)
+
+    def test_login_not_confirmed(self):
+        """Verify that attempting to log in as a user who has registered,
+        but not verified their registration, displays the appropriate
+        error message.
+        """
+        microblog.add_user('user', 'password', 'email2@email.com')
+        self.unconfirmed_id = \
+            microblog.TempUser.query.filter_by(username='user').first().id
+        with microblog.app.test_client() as c:
+            data = {
+               # '_csrf_token': flask.session['_csrf_token'],
+                'username': 'fff',
+                'password': 'password',
+            }
+            request = c.post('/login', data=data, follow_redirects=True)
+            self.assertIn(
+                "This username is registered, but not confirmed.",
+                request.data
+            )
+            self.assertIn('_csrf_token', request.data)
+            self.assertIn('username', request.data)
+            self.assertIn('password', request.data)
+            self.assertIn('Log In', request.data)
 
     def test_login_bad_username(self):
         """Verify that a POST to the login page with a nonexistant
