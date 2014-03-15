@@ -194,16 +194,16 @@ def confirm_view(regkey):
     temp_user = TempUser.query.filter_by(regkey=regkey).first()
 
     if temp_user:
+        db.session.delete(temp_user)
+        db.session.commit()
         add_user(
             username=temp_user.username,
             password=temp_user.password,
             email=temp_user.email,
             confirm=False
         )
-        db.session.delete(temp_user)
-        db.session.commit()
 
-    return render_template('confirmed.html', user=temp_user)
+    return render_template('confirm.html', user=temp_user)
 
 
 def write_post(title=None, body=None, auth_id=None):

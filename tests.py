@@ -494,7 +494,7 @@ class TestAddView(unittest.TestCase):
         """
         with microblog.app.test_client() as c:
             request = c.get('/add')
-            self.assertIn('Sorry.', request.data)
+            self.assertIn('Sorry', request.data)
             self.assertIn(
                 'You must be logged in to create new posts.', request.data)
 
