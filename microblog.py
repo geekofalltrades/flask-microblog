@@ -232,8 +232,8 @@ def add_user(username=None, password=None, email=None, confirm=True):
     if messages:
         raise ValueError(messages)
 
-    new_user = User(username, bcrypt.encrypt(password), email)
     if confirm:
+        new_user = TempUser(username, bcrypt.encrypt(password), email)
         #The only field left unvalidated is the reg_key field. We'll attempt
         #to insert until we succeed in generating a unique one.
         while True:
@@ -246,7 +246,7 @@ def add_user(username=None, password=None, email=None, confirm=True):
                 continue
             break
     else:
-        new_user.reg_key = None
+        new_user = User(username, bcrypt.encrypt(password), email)
         db.session.add(new_user)
         db.session.commit()
 
