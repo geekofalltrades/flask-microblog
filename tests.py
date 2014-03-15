@@ -523,7 +523,7 @@ class TestAddView(unittest.TestCase):
         """
         with microblog.app.test_client() as c:
             request = c.post('/add', data=self.post, follow_redirects=True)
-            self.assertIn('Sorry.', request.data)
+            self.assertIn('Sorry', request.data)
             self.assertIn(
                 'You must be logged in to create new posts.', request.data)
 
@@ -713,44 +713,44 @@ class TestRegisterView(unittest.TestCase):
             self.assertIn('email', request.data)
 
 
-# class TestConfirmView(unittest.TestCase):
-#     """Test the confirm view (confirm_view function) of the microblog."""
-#     def setUp(self):
-#         microblog.db.create_all()
+class TestConfirmView(unittest.TestCase):
+    """Test the confirm view (confirm_view function) of the microblog."""
+    def setUp(self):
+        microblog.db.create_all()
 
-#     def tearDown(self):
-#         microblog.db.session.remove()
-#         microblog.db.drop_all()
+    def tearDown(self):
+        microblog.db.session.remove()
+        microblog.db.drop_all()
 
-#     def test_confirm_user(self):
-#         """Confirm a user and verify that they are moved from the temp_users
-#         table to the users table.
-#         """
-#         microblog.add_user(
-#             'admin', 'password', 'email@email.com')
-#         user_key = \
-#             microblog.TempUser.query.filter_by(username='admin').first().regkey
+    def test_confirm_user(self):
+        """Confirm a user and verify that they are moved from the temp_users
+        table to the users table.
+        """
+        microblog.add_user(
+            'admin', 'password', 'email@email.com')
+        user_key = \
+            microblog.TempUser.query.filter_by(username='admin').first().regkey
 
-#         with microblog.app.test_client() as c:
-#             request = c.get('/confirm/%s' % user_key)
-#             self.assertIn('Confirmed!', request.data)
-#             self.assertIn(
-#                 'You may now begin using your account.', request.data)
-#             self.assertIn('Write your First Post', request.data)
-#             self.assertIn('Return Home', request.data)
+        with microblog.app.test_client() as c:
+            request = c.get('/confirm/%s' % user_key)
+            self.assertIn('Confirmed!', request.data)
+            self.assertIn(
+                'You may now begin using your account.', request.data)
+            self.assertIn('Log In', request.data)
+            self.assertIn('Home', request.data)
 
-#     def test_confirm_user_invalid_key(self):
-#         """Attempt to confirm a user with an invalid key and verify that
-#         the appropriate error message is displayed.
-#         """
-#         user_key = ''.join('f' for i in range(32))
+    def test_confirm_user_invalid_key(self):
+        """Attempt to confirm a user with an invalid key and verify that
+        the appropriate error message is displayed.
+        """
+        user_key = ''.join('f' for i in range(32))
 
-#         with microblog.app.test_client() as c:
-#             request = c.get('/confirm/%s' % user_key)
-#             self.assertIn('Sorry.', request.data)
-#             self.assertIn(
-#                 'This registration key is invalid.', request.data)
-#             self.assertIn('Return Home', request.data)
+        with microblog.app.test_client() as c:
+            request = c.get('/confirm/%s' % user_key)
+            self.assertIn('Sorry', request.data)
+            self.assertIn(
+                'This registration key is invalid.', request.data)
+            self.assertIn('Home', request.data)
 
 
 if __name__ == '__main__':

@@ -191,7 +191,19 @@ def confirm_view(regkey):
     """Allows a user to confirm their registration after registering for
     registration.
     """
-    pass
+    temp_user = TempUser.query.filter_by(regkey=regkey).first()
+
+    if temp_user:
+        add_user(
+            username=temp_user.username,
+            password=temp_user.password,
+            email=temp_user.email,
+            confirm=False
+        )
+        db.session.delete(temp_user)
+        db.session.commit()
+
+    return render_template('confirmed.html', user=temp_user)
 
 
 def write_post(title=None, body=None, auth_id=None):
@@ -227,7 +239,7 @@ def add_user(username=None, password=None, email=None, confirm=True, key=None):
     """Add a new user to the database's 'user' table. If confirm is
     specified as false, we skip the confirmation step for this user and
     add them directly as an active user. If key is provided, any TempUser
-    added is forced to have that regkey. (Both are for testing purposes.)"""
+    added is forced to have that regkey. (For testing purposes.)"""
     #Pre-checking has become necessary because SQLAlchemy's IntegrityError
     #doesn't convey enough information by itself about the nature of the
     #error.

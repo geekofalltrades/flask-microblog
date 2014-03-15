@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block content %}
+{% if user %}
+<h2>Confirmed!</h2>
+<p>You may now begin using your account.</p>
+<a href={{ url_for('login_view') }}>Log In</a>
+{% else %}
+<h2>Sorry</h2>
+<p>This registration key is invalid.</p>
+{% endif %}
+<a href={{ url_for('list_view') }}>Home</a>
+{% endblock %}
