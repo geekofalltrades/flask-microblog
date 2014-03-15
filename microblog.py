@@ -75,15 +75,16 @@ class TempUser(db.Model):
         self.password = password
         self.email = email
         self.timestamp = datetime.utcnow()
-        self.generate_regkey()
-
-    def generate_regkey(self):
-        """Generate a random, 32-character string as a registration key.
-        This function can also be called to regenerate keys if the key
-        just generated is not unique.
-        """
         self.regkey = \
             ''.join(choice(string.letters + string.digits) for i in range(32))
+
+    # def generate_regkey(self):
+    #     """Generate a random, 32-character string as a registration key.
+    #     This function can also be called to regenerate keys if the key
+    #     just generated is not unique.
+    #     """
+    #     self.regkey = \
+    #         ''.join(choice(string.letters + string.digits) for i in range(32))
 
 
 @app.route("/")
@@ -222,13 +223,20 @@ def add_user(username=None, password=None, email=None, confirm=True):
         raise ValueError(messages)
 
     #If form input was good, assure that the necessary fields are unique
-    user = User.query.filter_by(username=username).first()
-    if user:
-        messages.append("This username is taken.")
-    user = User.query.filter_by(email=email).first()
-    if user:
-        messages.append(
-            "This email address is already registered to another user.")
+    #Check the users table...
+    for user in [User.query.filter_by(username=username).first(),
+                 TempUser.query.filter_by(username=username).first()]:
+        if user:
+            messages.append("This username is taken.")
+            break
+
+    for user in [User.query.filter_by(email=email).first(),
+                 TempUser.query.filter_by(email=email).first()]:
+        if user:
+            messages.append(
+                "This email address is already registered to another user.")
+            break
+
     if messages:
         raise ValueError(messages)
 
@@ -242,9 +250,11 @@ def add_user(username=None, password=None, email=None, confirm=True):
                 db.session.commit()
             except IntegrityError:
                 db.session.rollback()
-                new_user.generate_reg_key()
+                new_user = TempUser(username, bcrypt.encrypt(password), email)
+                #new_user.generate_reg_key()
                 continue
-            break
+            else:
+                break
     else:
         new_user = User(username, bcrypt.encrypt(password), email)
         db.session.add(new_user)

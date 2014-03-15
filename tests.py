@@ -153,7 +153,7 @@ class TestAddUser(unittest.TestCase):
         }
         self.bad_users = {
             'username_collision': ('user1', 'password', 'email@email.com'),
-            'email_collision': ('user', 'password', 'email@email.com'),
+            'email_collision': ('user', 'password', 'email1@email.com'),
             'no_username': ('', 'password', 'email@email.com'),
             'no_password': ('user', '', 'email@email.com'),
             'no_email': ('user', 'password', '')
@@ -189,29 +189,60 @@ class TestAddUser(unittest.TestCase):
         users = microblog.User.query.all()
         self.assertEqual(len(users), len(self.good_users))
 
-    # def test_add_non_unique_username(self):
-    #     """Add several valid users, then add a user whose username collides
-    #     with one already in the database.
-    #     """
-    #     pass
+    def test_add_non_unique_username(self):
+        """Add several valid users, then add a user whose username collides
+        with one already in the database.
+        """
+        for key, val in self.good_users.iteritems():
+            microblog.add_user(*val)
 
-    # def test_add_non_unique_email(self):
-    #     """Add several valid users, then add a user whose email address
-    #     collides with one already in the database.
-    #     """
-    #     pass
+        self.assertRaisesRegexp(
+            ValueError,
+            r'This username is taken.',
+            microblog.add_user,
+            *self.bad_users['username_collision']
+        )
 
-    # def test_add_no_username(self):
-    #     """Attempt to add a user who has no username."""
-    #     pass
+    def test_add_non_unique_email(self):
+        """Add several valid users, then add a user whose email address
+        collides with one already in the database.
+        """
+        for key, val in self.good_users.iteritems():
+            microblog.add_user(*val)
 
-    # def test_add_no_password(self):
-    #     """Attempt to add a user who has no password."""
-    #     pass
+        self.assertRaisesRegexp(
+            ValueError,
+            r'This email address is already registered to another user.',
+            microblog.add_user,
+            *self.bad_users['email_collision']
+        )
 
-    # def test_add_no_email(self):
-    #     """Attempt to add a user who has no email address."""
-    #     pass
+    def test_add_no_username(self):
+        """Attempt to add a user who has no username."""
+        self.assertRaisesRegexp(
+            ValueError,
+            r'Username is a required field.',
+            microblog.add_user,
+            *self.bad_users['no_username']
+        )
+
+    def test_add_no_password(self):
+        """Attempt to add a user who has no password."""
+        self.assertRaisesRegexp(
+            ValueError,
+            r'Password is a required field.',
+            microblog.add_user,
+            *self.bad_users['no_password']
+        )
+
+    def test_add_no_email(self):
+        """Attempt to add a user who has no email address."""
+        self.assertRaisesRegexp(
+            ValueError,
+            r'Email address is a required field.',
+            microblog.add_user,
+            *self.bad_users['no_email']
+        )
 
 
 class TestLoginView(unittest.TestCase):
