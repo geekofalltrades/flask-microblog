@@ -166,10 +166,22 @@ class TestAddUser(unittest.TestCase):
     def test_add_with_confirm(self):
         """Add several valid users to the database with the confirm flag
         set to true and verify that they appear in the temp_users table
-        as expected, and have unique regkeys.
+        as expected.
         """
         for key, val in self.good_users.iteritems():
             microblog.add_user(*val)
+
+        users = microblog.TempUser.query.all()
+        self.assertEqual(len(users), len(self.good_users))
+
+    def test_add_with_confirm_key_collision(self):
+        """Add several valid users to the database with the confirm
+        flag set. Ensure that a collision between regkeys in the temp_users
+        table is correctly handled.
+        """
+        regkey = ''.join('f' for i in range(32))
+        for key, val in self.good_users.iteritems():
+            microblog.add_user(*val, key=regkey)
 
         users = microblog.TempUser.query.all()
         self.assertEqual(len(users), len(self.good_users))
@@ -177,6 +189,7 @@ class TestAddUser(unittest.TestCase):
         for user in users:
             regkeys.add(user.regkey)
 
+        self.assertIn(regkey, regkeys)
         self.assertEqual(len(users), len(regkeys))
 
     def test_add_without_confirm(self):

@@ -203,10 +203,11 @@ def read_post(id):
     return post
 
 
-def add_user(username=None, password=None, email=None, confirm=True):
+def add_user(username=None, password=None, email=None, confirm=True, key=None):
     """Add a new user to the database's 'user' table. If confirm is
     specified as false, we skip the confirmation step for this user and
-    add them directly as an active user."""
+    add them directly as an active user. If key is provided, any TempUser
+    added is forced to have that regkey. (Both are for testing purposes.)"""
     #Pre-checking has become necessary because SQLAlchemy's IntegrityError
     #doesn't convey enough information by itself about the nature of the
     #error.
@@ -242,6 +243,8 @@ def add_user(username=None, password=None, email=None, confirm=True):
 
     if confirm:
         new_user = TempUser(username, bcrypt.encrypt(password), email)
+        if key:
+            new_user.regkey = key
         #The only field left unvalidated is the reg_key field. We'll attempt
         #to insert until we succeed in generating a unique one.
         while True:
