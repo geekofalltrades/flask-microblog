@@ -769,7 +769,6 @@ class TestConfirmView(unittest.TestCase):
         self.assertEqual(temp_user.username, user.username)
         self.assertEqual(temp_user.password, user.password)
         self.assertEqual(temp_user.email, user.email)
-        self.assertEqual(temp_user.timestamp, user.timestamp)
 
 
 if __name__ == '__main__':

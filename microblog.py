@@ -291,7 +291,9 @@ def add_user(username=None, password=None, email=None, confirm=True, key=None):
             else:
                 break
     else:
-        new_user = User(username, bcrypt.encrypt(password), email)
+        if not bcrypt.identify(password):
+            password = bcrypt.encrypt(password)
+        new_user = User(username, password, email)
         db.session.add(new_user)
         db.session.commit()
 
