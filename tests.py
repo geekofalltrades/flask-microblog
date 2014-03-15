@@ -613,5 +613,86 @@ class TestPermalinkView(unittest.TestCase):
             self.assertIn('Not logged in', request.data)
 
 
+class TestRegisterView(unittest.TestCase):
+    """Test the register view (register_view function) of the microblog."""
+    def setUp(self):
+        microblog.db.create_all()
+        self.user = {
+            'username': 'admin',
+            'password': 'password',
+            'email': 'email@email.com',
+        }
+        self.bad_users = {
+            'username_collision':
+            {
+                'username': 'admin',
+                'password': 'password',
+                'email': 'email2@email.com',
+            },
+            'blank_fields':
+            {
+                'username': '',
+                'password': '',
+                'email': '',
+            },
+        }
+
+    def tearDown(self):
+        microblog.db.session.remove()
+        microblog.db.drop_all()
+
+    def test_register_get(self):
+        """Verify that a get request to the register view displays the
+        registration form.
+        """
+        pass
+
+    def test_register_post(self):
+        """Verify that a post request to the register form (with valid
+        credentials) registers a new user.
+        """
+        pass
+
+    def test_flash_one_message(self):
+        """Attempt to register an account invalid in one way (a username
+        that is already taken) and verify that the error message returned
+        is flashed on the screen.
+        """
+        pass
+
+    def test_flash_multiple_messages(self):
+        """Attempt to register an account that is invalid in multiple
+        ways (all fields left blank) and verify that the error messages
+        returned are all flashed on the screen.
+        """
+        pass
+
+
+class TestConfirmView(unittest.TestCase):
+    """Test the confirm view (confirm_view function) of the microblog."""
+    def setUp(self):
+        microblog.db.create_all()
+        microblog.add_user(
+            'admin', 'password', 'email@email.com')
+        self.user_key = \
+            microblog.TempUser.query.filter_by(username='admin').first().regkey
+
+    def tearDown(self):
+        microblog.db.session.remove()
+        microblog.db.drop_all()
+
+    def test_confirm_user(self):
+        """Confirm a user and verify that they are moved from the temp_users
+        table to the users table.
+        """
+        pass
+
+    def test_confirm_user_invalid_key(self):
+        """Attempt to confirm a user with an invalid key and verify that
+        the appropriate error message is displayed.
+        """
+        pass
+
+
 if __name__ == '__main__':
     unittest.main()
