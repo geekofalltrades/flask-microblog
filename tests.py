@@ -672,10 +672,6 @@ class TestConfirmView(unittest.TestCase):
     """Test the confirm view (confirm_view function) of the microblog."""
     def setUp(self):
         microblog.db.create_all()
-        microblog.add_user(
-            'admin', 'password', 'email@email.com')
-        self.user_key = \
-            microblog.TempUser.query.filter_by(username='admin').first().regkey
 
     def tearDown(self):
         microblog.db.session.remove()
@@ -685,13 +681,31 @@ class TestConfirmView(unittest.TestCase):
         """Confirm a user and verify that they are moved from the temp_users
         table to the users table.
         """
-        pass
+        microblog.add_user(
+            'admin', 'password', 'email@email.com')
+        user_key = \
+            microblog.TempUser.query.filter_by(username='admin').first().regkey
+
+        with microblog.app.test_client() as c:
+            request = c.get('/confirm/%s' % user_key)
+            self.assertIn('Confirmed!', request.data)
+            self.assertIn(
+                'You may now begin using your account.', request.data)
+            self.assertIn('Write your First Post', request.data)
+            self.assertIn('Return Home', request.data)
 
     def test_confirm_user_invalid_key(self):
         """Attempt to confirm a user with an invalid key and verify that
         the appropriate error message is displayed.
         """
-        pass
+        user_key = ''.join('f' for i in range(32))
+
+        with microblog.app.test_client() as c:
+            request = c.get('/confirm/%s' % user_key)
+            self.assertIn('Sorry.', request.data)
+            self.assertIn(
+                'This registration key is invalid.', request.data)
+            self.assertIn('Return Home', request.data)
 
 
 if __name__ == '__main__':
