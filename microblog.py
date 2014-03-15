@@ -78,14 +78,6 @@ class TempUser(db.Model):
         self.regkey = \
             ''.join(choice(string.letters + string.digits) for i in range(32))
 
-    # def generate_regkey(self):
-    #     """Generate a random, 32-character string as a registration key.
-    #     This function can also be called to regenerate keys if the key
-    #     just generated is not unique.
-    #     """
-    #     self.regkey = \
-    #         ''.join(choice(string.letters + string.digits) for i in range(32))
-
 
 @app.route("/")
 def list_view():
@@ -173,7 +165,13 @@ def register_view():
     """Allows a user to register for membership."""
     if request.method == 'POST':
         try:
-            add_user(**request.form)
+            #request.form is an ImmutableMultiDict: it does not unpack
+            #as expected (which is why **request.form is not used below)
+            add_user(
+                username=request.form['username'],
+                password=request.form['password'],
+                email=request.form['email']
+            )
         except ValueError as e:
             for message in e.message:
                 flash(message)
@@ -183,6 +181,7 @@ def register_view():
                 'confirmation_instructions.html',
                 email=request.form['email']
             )
+        return render_template('register.html')
     else:
         return render_template('register.html')
 
