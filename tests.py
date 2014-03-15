@@ -762,8 +762,7 @@ class TestConfirmView(unittest.TestCase):
             microblog.TempUser.query.filter_by(username='admin').first()
 
         with microblog.app.test_client() as c:
-            request = c.get('/confirm/%s' % temp_user.regkey)
-            self.assertIn('Confirmed!', request.data)
+            c.get('/confirm/%s' % temp_user.regkey)
 
         user = microblog.User.query.filter_by(username='admin').first()
         self.assertEqual(temp_user.username, user.username)
