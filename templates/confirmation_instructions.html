@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Almost There...</h2>
+<p>Your new account is awaiting confirmation.</p>
+<p>An email with confirmation instructions has been sent to {{ email }}.</p>
+<p>You will not be able to use your new account until it has been confirmed.</p>
+<a href={{ url_for('list_view') }}>Home</a>
+{% endblock %}

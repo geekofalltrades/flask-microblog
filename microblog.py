@@ -168,7 +168,7 @@ def logout_view():
     return redirect(url_for('list_view'))
 
 
-@app.route("/register")
+@app.route("/register", methods=['GET', 'POST'])
 def register_view():
     """Allows a user to register for membership."""
     if request.method == 'POST':
@@ -177,11 +177,14 @@ def register_view():
         except ValueError as e:
             for message in e.message:
                 flash(message)
-            redirect(url_for('register_view'))
+            return redirect(url_for('register_view'))
         else:
-            render_template('confirmation_instructions.html')
+            return render_template(
+                'confirmation_instructions.html',
+                email=request.form['email']
+            )
     else:
-        render_template('register.html')
+        return render_template('register.html')
 
 
 @app.route("/confirm/<regkey>")
