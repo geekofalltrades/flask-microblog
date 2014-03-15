@@ -171,7 +171,25 @@ def logout_view():
 @app.route("/register")
 def register_view():
     """Allows a user to register for membership."""
-    return "<h1>Nope.</h1>"
+    if request.method == 'POST':
+        try:
+            add_user(**request.form)
+        except ValueError as e:
+            for message in e.message:
+                flash(message)
+            redirect(url_for('register_view'))
+        else:
+            render_template('confirmation_instructions.html')
+    else:
+        render_template('register.html')
+
+
+@app.route("/confirm/<regkey>")
+def confirm_view(regkey):
+    """Allows a user to confirm their registration after registering for
+    registration.
+    """
+    pass
 
 
 def write_post(title=None, body=None, auth_id=None):
