@@ -132,9 +132,9 @@ def login_view():
             if not user:
                 flash("This user does not exist.", category="error")
             else:
-                message = "This username is registered, but not confirmed."
-                message += "Please check the email address you registered with"
-                message += "for a confirmation message. You must confirm your"
+                message = "This username is registered, but not confirmed. "
+                message += "Please check the email address you registered with "
+                message += "for a confirmation message. You must confirm your "
                 message += "registration before you can use your account."
                 flash(message, category='error')
             return redirect(url_for('login_view'))

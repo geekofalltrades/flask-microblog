@@ -752,6 +752,25 @@ class TestConfirmView(unittest.TestCase):
                 'This registration key is invalid.', request.data)
             self.assertIn('Home', request.data)
 
+    def test_confirm_preserves_data(self):
+        """Verify that the confirmation process (moving the user from one)
+        table to another) doesn't change any of their user data.
+        """
+        microblog.add_user(
+            'admin', 'password', 'email@email.com')
+        temp_user = \
+            microblog.TempUser.query.filter_by(username='admin').first()
+
+        with microblog.app.test_client() as c:
+            request = c.get('/confirm/%s' % temp_user.regkey)
+            self.assertIn('Confirmed!', request.data)
+
+        user = microblog.User.query.filter_by(username='admin').first()
+        self.assertEqual(temp_user.username, user.username)
+        self.assertEqual(temp_user.password, user.password)
+        self.assertEqual(temp_user.email, user.email)
+        self.assertEqual(temp_user.timestamp, user.timestamp)
+
 
 if __name__ == '__main__':
     unittest.main()
