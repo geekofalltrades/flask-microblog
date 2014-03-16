@@ -4,6 +4,7 @@ from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.script import Manager
 from flask.ext.migrate import Migrate, MigrateCommand
 from flask.ext.seasurf import SeaSurf
+from flask.ext.mail import Mail, Message
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from passlib.hash import bcrypt
 from sqlalchemy import desc
@@ -20,6 +21,8 @@ db = SQLAlchemy(app)
 csrf = SeaSurf(app)
 
 migrate = Migrate(app, db)
+
+mail = Mail(app)
 
 manager = Manager(app)
 manager.add_command('db', MigrateCommand)
@@ -177,6 +180,24 @@ def register_view():
                 flash(message)
             return redirect(url_for('register_view'))
         else:
+            msg = Message(
+                "Confirm your account at Flask Microblog",
+                sender=('Flask Microblog', 'mattscrapmail@gmail.com'),
+                recipients=[request.form['email']]
+            )
+            msg.body = """
+You're almost ready to start using your Flask Microblog account.
+Simply click the following link within the next thirty minutes to confirm your registration:
+
+%s
+
+If you did not register for a Flask Microblog account, you can safely ignore this message.
+""" % url_for(
+    'confirm_view',
+    regkey=TempUser.query.filter_by(username=request.form['username']).
+                                    first().regkey,
+    _external=True)
+            mail.send(msg)
             return render_template(
                 'confirmation_instructions.html',
                 email=request.form['email']
