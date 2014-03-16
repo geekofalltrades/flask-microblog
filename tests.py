@@ -675,6 +675,23 @@ class TestRegisterView(unittest.TestCase):
         user = microblog.TempUser.query.filter_by(username='admin').first()
         self.assertTrue(user)
 
+    # def test_confirmation_email(self):
+    #     """Verify that a confirmation email is correctly generated."""
+    #     with microblog.app.test_request_context('/register', data=self.user, method='POST'):
+    #         import pdb; pdb.set_trace()
+    #         self.assertEqual(
+    #             flask.g.outbox[0].subject,
+    #             "Confirm your account at Flask Microblog"
+    #         )
+    #         self.assertIn(
+    #             "You're almost ready to start using your Flask Microblog account.",
+    #             flask.g.outbox[0].msg,
+    #         )
+    #         self.assertEqual(
+    #             flask.g.outbox[0].recipients[0],
+    #             self.user['email']
+    #         )
+
     def test_flash_one_message(self):
         """Attempt to register an account invalid in one way (a username
         that is already taken) and verify that the error message returned
