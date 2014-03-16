@@ -118,8 +118,16 @@ def run_command_on_selected_server(command):
     execute(command, hosts=selected_hosts)
 
 
+def _update():
+    sudo('apt-get update')
+
+
+def update():
+    run_command_on_selected_server(_update)
+
+
 def _python_setup():
-    sudo('apt-get install python-all-dev python-setuptools python-pip')
+    sudo('apt-get install python-all-dev python-setuptools python-pip libpq-dev')
 
 
 def python_setup():
@@ -130,6 +138,14 @@ def _install_python_reqs():
     sudo('pip install -r requirements.txt')
 
 
+def _install_postgres():
+    sudo('sudo apt-get install postgresql postgresql-contrib')
+
+
+def install_postgres():
+    run_command_on_selected_server(_install_postgres)
+
+
 def install_python_reqs():
     run_command_on_selected_server(_install_python_reqs)
 
@@ -137,6 +153,7 @@ def install_python_reqs():
 def _install_nginx():
     sudo('apt-get install nginx')
     sudo('/etc/init.d/nginx start')
+    sudo('cp /etc/nginx/sites-available/default /etc/nginx/sites-available/default.backup')
 
 
 def install_nginx():
@@ -208,15 +225,12 @@ def deploy():
 def _deploy():
     rsync_project('~')
 
-    extension = 1
-    files = os.listdir('/etc/nginx/sites-available')
-    for fi in files:
-        match = re.search(r'^default(\d+)$', fi)
-        if match and int(match.group(0)) > extension:
-            extension = int(match.group(0)) + 1
+    #sudo('createdb microblog')
 
     with cd('FlaskMicroblog'):
-        sudo('mv /etc/nginx/sites-available/default /etc/nginx/sites-available/default.%s' % extension)
+        _install_python_reqs()
+        sudo('export MICROBLOG_CONFIG=`pwd`/config.py')
+        #sudo('python microblog.py db upgrade')
         sudo('mv nginx_config /etc/nginx/sites-available/default')
         sudo('cp microblog.conf /etc/supervisor/conf.d')
 
@@ -225,7 +239,8 @@ def _deploy():
 
 
 def setup():
+    update()
     python_setup()
-    install_python_reqs()
     install_nginx()
     install_supervisor()
+    install_postgres()
