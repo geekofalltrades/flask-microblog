@@ -218,13 +218,13 @@ def _deploy():
     with cd('FlaskMicroblog'):
         sudo('mv /etc/nginx/sites-available/default /etc/nginx/sites-available/default.%s' % extension)
         sudo('mv nginx_config /etc/nginx/sites-available/default')
-        sudo('cp bookapp.conf /etc/supervisor/conf.d')
+        sudo('cp microblog.conf /etc/supervisor/conf.d')
 
     _restart_nginx()
     _restart_supervisor()
 
 
-def perform_setup():
+def setup():
     python_setup()
     install_python_reqs()
     install_nginx()
