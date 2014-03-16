@@ -11,6 +11,7 @@ from sqlalchemy import desc
 from datetime import datetime
 from random import choice
 import string
+from gevent.wsgi import WSGIServer
 
 app = Flask(__name__)
 app.config.from_pyfile('default_config.py')
@@ -227,6 +228,11 @@ def confirm_view(regkey):
     return render_template('confirm.html', user=temp_user)
 
 
+@app.errorhandler(404)
+def page_not_found(error):
+    return 'Attempted to access %s' % format(request.url), 404
+
+
 def write_post(title=None, body=None, auth_id=None):
     """Create a new blog post."""
     if not title:
@@ -327,4 +333,6 @@ class NotFoundError(SQLAlchemyError):
 
 
 if __name__ == '__main__':
-    manager.run()
+    #manager.run()
+    http_server = WSGIServer(('', 5000), app)
+    http_server.serve_forever()
