@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
 {% if session.logged_in %}
-<p>Logged in as {{ session.username }} - <a href="/logout">Log Out</a></p>
+<p>Logged in as {{ session.username }} - <a href={{ url_for('logout_view') }}>Log Out</a></p>
 {% else %}
 <p>Not logged in - <a href={{ url_for('login_view') }}>Log In</a> or <a href={{ url_for('register_view') }}>Register</a></p>
 {% endif %}
@@ -11,7 +11,9 @@
     <div>
         <h2><a href={{ url_for('permalink_view', id=post.id) }}>{{ post.title }}</a></h2>
         <i>by {{ post.author.username }} on {{ post.timestamp }}</i>
-        <p>{{ post.body }}</p>
+        {% for line in post.body.split('\r\n') %}
+        <p>{{ line }}</p>
+        {% endfor %}
     </div>
     {% endfor %}
 </div>

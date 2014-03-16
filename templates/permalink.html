@@ -1,14 +1,16 @@
 {% extends "base.html" %}
 {% block content %}
 {% if session.logged_in %}
-<p>Logged in as {{ session.username }} - <a href="/logout">Log Out</a></p>
+<p>Logged in as {{ session.username }} - <a href={{ url_for('logout_view') }}>Log Out</a></p>
 {% else %}
-<p>Not logged in - <a href="/login">Log In</a> or <a href="/register">Register</a></p>
+<p>Not logged in - <a href={{ url_for('login_view') }}>Log In</a> or <a href={{ url_for('register_view') }}>Register</a></p>
 {% endif %}
 <div id="post">
     <h3>{{ post.title }}</h3>
     <i>by {{ post.author.username }} on {{ post.timestamp }}</i>
-    <p>{{ post.body }}</p>
+    {% for line in post.body.split('\r\n') %}
+    <p>{{ line }}</p>
+    {% endfor %}
 </div>
-<a href='/'>Home</a>
+<a href={{ url_for('list_view') }}>Home</a>
 {% endblock %}
