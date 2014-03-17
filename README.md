@@ -10,3 +10,6 @@ A datestamp is then applied to the post automatically at its time of creation.
 Users may also retrieve a list of posts in reverse order added (as is
 usually the default format on blog pages) and can retrieve single posts
 by their id number (a PostgreSQL serial primary key).
+
+I looked to [Justin Lee's](https://github.com/risingmoon) work on our poker room collaboration for tips
+on how to manage deployment and serve static files through nginx.
