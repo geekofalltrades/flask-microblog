@@ -1,17 +1,17 @@
 {% extends "base.html" %}
 {% block content %}
 {% if session.logged_in %}
-<p>Logged in as {{ session.username }} - <a href={{ url_for('logout_view') }}>Log Out</a></p>
+<p class="login">Logged in as {{ session.username }} - <a href={{ url_for('logout_view') }}>Log Out</a></p>
 <h2>Create New Post</h2>
 <form method="POST" id="newpost">
     <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
-    <input type="text" name="title" maxlength="255" />
-    <textarea form="newpost" name="body"></textarea>
+    <input type="text" name="title" placeholder="Title" maxlength="255" />
+    <textarea form="newpost" name="body" placeholder="Body"></textarea>
     <input type="submit" name="submit" />
 </form>
 {% else %}
 <h2>Sorry</h2>
-<p>You must be logged in to create new posts.</p>
+<p class="login">You must be logged in to create new posts.</p>
 <a href={{ url_for('login_view') }}>Log In Now</a>
 <a href={{ url_for('register_view') }}>Register</a>
 {% endif %}

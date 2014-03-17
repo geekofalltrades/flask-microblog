@@ -2,8 +2,10 @@
 <html>
     <head>
         <title>Flask Microblog</title>
+        <link href="../static/base.css" rel="stylesheet">
     </head>
     <body>
+    <div id="main">
         {% with flashes = get_flashed_messages() %}
           {% if flashes %}
             <ul class=flashes>
@@ -14,5 +16,6 @@
           {% endif %}
         {% endwith %}
         {% block content %}{% endblock %}
+    </div>
     </body>
 </html>

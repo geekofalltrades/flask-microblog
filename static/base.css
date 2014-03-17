@@ -1,0 +1,59 @@
+body {
+    background-color: #0A0A0A;
+    color: #F0F0F0;
+    font-family: times new roman;
+}
+
+i {
+    font-size: 14px;
+}
+
+a:link {
+    text-decoration: none;
+    color: #A0A0FF;
+}
+
+a:visited {
+    text-decoration: none;
+    color: #A0A0FF;
+}
+
+a:hover {
+    color: #FFFFFF;
+}
+
+h2 {
+    font-family: courier;
+    font-size: 30px;
+    margin: 10px auto 10px auto;
+}
+
+input {
+    display: block;
+}
+
+textarea {
+    display: block;
+    height: 200px;
+    width: 400px;
+}
+
+#main {
+    margin: 0 auto 0 auto;
+    padding: 5px 20px 10px 20px;
+    background-color: #202020;
+    width: 1200px;
+}
+
+.post {
+    margin: 10px auto 10px auto;
+    padding: 10px 20px 10px 20px;
+    background-color: #0A0A0A;
+    border-width: thin;
+    border-color: #505050;
+    border-style: solid;
+}
+
+.login {
+    font-size: 14px;
+}
